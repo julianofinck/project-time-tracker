@@ -16,23 +16,28 @@ class Layout:
         self,
     ):
         # External links
-        links = [html.Link(
-            rel="stylesheet", href="https://fonts.googleapis.com/css?family=Open+Sans"
-        ),
-        html.Link(
-            rel="stylesheet", href="assets/style.css"
-        )]
+        links = [
+            html.Link(
+                rel="stylesheet",
+                href="https://fonts.googleapis.com/css?family=Open+Sans",
+            ),
+            html.Link(rel="stylesheet", href="assets/style.css"),
+        ]
 
         # Components
         childrens = [
-            html.Div(id='window-size-display', style={'display': 'none', 'visibility': 'hidden'}, children=[
-                "Current Window Size: Width: ",
-                html.Span(id='window-size-width'),
-                html.Span(id='window-size-height'),
-                ]),
+            html.Div(
+                id="window-size-display",
+                style={"display": "none", "visibility": "hidden"},
+                children=[
+                    "Current Window Size: Width: ",
+                    html.Span(id="window-size-width"),
+                    html.Span(id="window-size-height"),
+                ],
+            ),
             html.H1(
-                children="Visualizador dos Apontamentos", 
-                style={"textAlign": "center", "color": "white"}
+                children="Visualizador dos Apontamentos",
+                style={"textAlign": "center", "color": "white"},
             ),
             self.date_picker(),
             dcc.Graph(id="histogram"),
@@ -40,9 +45,7 @@ class Layout:
         ]
 
         # Style
-        style = html.Div(
-            children=childrens, 
-            style={})
+        style = html.Div(children=childrens, style={})
         return links + [style]
 
     def date_picker(

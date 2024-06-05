@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
-from dash import Dash, Input, Output, dcc, html, clientside_callback
+from dash import Dash, Input, Output, clientside_callback, dcc, html
 from dotenv import load_dotenv
 
 from .get_data import Extractor
@@ -14,9 +14,7 @@ load_dotenv()
 path = os.getenv("HOURS_XLSX")
 extractor = Extractor(path)
 # colleagues_list = extractor.get_colleagues()
-colleagues_list = [
-    "Juliano", "Klever", "José"
-]
+colleagues_list = ["Juliano", "Klever", "José"]
 dfs = extractor.get_dfs(colleagues_list)
 
 drop_down_lists = DropDownLists(dfs)
@@ -55,8 +53,8 @@ def update_date_picker(colleague):
         Input("date-picker", "end_date"),
         Input("colleague-dropdown", "value"),
         Input("project-dropdown", "value"),
-        Input("product-dropdown", "value")
-    ]
+        Input("product-dropdown", "value"),
+    ],
 )
 def update_histogram(start_date, end_date, colleague, project, product):
     # Get the data accordingly
@@ -96,11 +94,14 @@ def update_histogram(start_date, end_date, colleague, project, product):
             x=[str(k)[:14] for k in grouped.index],
             y=grouped.values,
             text=[f"{round(v, 2)} h" for v in grouped.values],
-            hovertemplate=[f"{round(v, 2)} h<br>{k}<extra></extra>" for k, v in zip(grouped.index, grouped.values)],  # Full x-values in hovertemplate
+            hovertemplate=[
+                f"{round(v, 2)} h<br>{k}<extra></extra>"
+                for k, v in zip(grouped.index, grouped.values)
+            ],  # Full x-values in hovertemplate
             marker=dict(
                 color="#198238",  # Color hex code
-            )
-    )
+            ),
+        )
     ]
 
     # Create layout for histogram
@@ -122,9 +123,10 @@ def update_histogram(start_date, end_date, colleague, project, product):
 
 # DropDownList - Projeto
 @app.callback(
-    Output("project-dropdown", "options"), 
+    Output("project-dropdown", "options"),
     [
-        Input("colleague-dropdown", "value"),]
+        Input("colleague-dropdown", "value"),
+    ],
 )
 def update_project_options(colleague):
     project_project = drop_down_lists.product_project_list[colleague]
@@ -137,11 +139,8 @@ def update_project_options(colleague):
 
 # DropDownList - Produto
 @app.callback(
-    Output("product-dropdown", "options"), 
-    [
-        Input("colleague-dropdown", "value"),
-        Input("project-dropdown", "value")
-        ]
+    Output("product-dropdown", "options"),
+    [Input("colleague-dropdown", "value"), Input("project-dropdown", "value")],
 )
 def update_product_options(colleague, project):
     # Get project-product list
@@ -150,12 +149,13 @@ def update_product_options(colleague, project):
     if project is not None:
         mask = product_project["Projeto"] == project
         product_project = product_project[mask]
-    
+
     product_no_na = product_project["Produto"].dropna()
     product_unique = product_no_na.unique()
     options = [{"label": i, "value": i} for i in product_unique]
     options.sort(key=lambda x: x["label"])
     return options
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
