@@ -1,0 +1,3 @@
+.vscode/
+.venv/
+scripts/import.py
