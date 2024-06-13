@@ -1,0 +1,44 @@
+html{
+    background-color: #21272A;
+    font-family: "Open Sans";
+    color: #e8e8e8;
+}
+
+#title{
+    width: 100vw;
+    height: fit-content;
+    margin: 0px;
+}
+#subtitle{
+    width: 100vw;
+    height: fit-content;
+    margin: 0px;
+}
+.DateInput_input{
+    padding: 0px;
+    text-align: center;
+}
+#histogram{
+    width: 100%;
+    height: 300px;
+}
+.dropdown-title{
+    margin: 0px;
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+}
+.dropdown-list{
+    color: #272727;
+}
+#update-area{
+    width: fit-content;
+    height: fit-content;
+}
+#update_bar_loading{
+    height: 2px;
+    width: 10px;
+    background-color: aqua;
+}
+#histogram{
+    height: 100vh;
+}

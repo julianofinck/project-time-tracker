@@ -1,3 +1,5 @@
 .vscode/
 .venv/
 scripts/import.py
+
+app/cache/*
