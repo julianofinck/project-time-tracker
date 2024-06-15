@@ -80,7 +80,7 @@ def start_update(n_intervals, n_clicks, style):
     elif n_intervals > 10:
         running_thread = False
         progress = 0
-        style['width'] = f'{progress}%'
+        style['width'] = f'100%'
         return True, None, style, f'Atualizado!'
     else:
         return True, None, style, f''

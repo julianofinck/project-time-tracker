@@ -21,7 +21,7 @@ class Layout:
                         html.Div([
                             dcc.Interval(id='interval-component', interval=1000, n_intervals=0),
                             html.Div(
-                                html.Button('Atualizar dados', id='update-button'), 
+                                html.Button('Reler planilhas', id='update-button'), 
                                 style={"width": "fit-content"}),
                             # This style must be set here. If set in .css, callback funciton wont get it
                             html.Div(html.Div(id='progress-text'),
