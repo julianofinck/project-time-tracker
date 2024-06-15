@@ -1,7 +1,7 @@
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
-from dash import Input, Output, State
+from dash import Input, Output, State, clientside_callback
 from .__init__ import app
 from .extract import extractor
 import datetime
@@ -11,13 +11,27 @@ import time
 
 # Global progress variable
 progress = 0
+running_thread = False
 
 def update_data():
+    
     # For the bar in frontend
     global progress
     extractor._get_colleagues()
     filename_colleagues = [(filename, colleague) for filename, colleagues in extractor.filename_colleagues.items() for colleague in colleagues ]
     total_iterations = len(filename_colleagues)
+
+    # Set max intervals
+    max_intervals = 3 #filename_colleagues
+    clientside_callback(
+        """
+        function(data) {
+            return MAX_INTERVALS;
+        }
+        """.replace("MAX_INTERVALS", str(max_intervals)),
+        Output('interval-component', 'max_intervals'),
+        [Input('interval-component', 'n_intervals')],
+    )
 
     # If not specified, use all colleagues
     ti = time.time()
@@ -25,6 +39,8 @@ def update_data():
     for i, (filename, colleague) in enumerate(filename_colleagues):
         data[colleague] = extractor._get_df(filename, colleague) 
         progress = (i + 1) / total_iterations * 100
+
+    # TODO: stop interval
 
     extractor.data = data
     tf = time.time()
@@ -37,33 +53,37 @@ def update_data():
     }
 
     extractor._save_state()
+    return 0
 
 # Callback to start the background process
 @app.callback(
+    Output('interval-component', 'disabled'),
+    Output('update-button', 'n_clicks'),
     Output('update-bar-loading', 'style'),
     Output('progress-text', 'children'),
     Input('interval-component', 'n_intervals'),
+    Input('update-button', 'n_clicks'),
     State('update-bar-loading', 'style')
 )
-def update_progress(n_intervals, style):
-    global progress
+def start_update(n_intervals, n_clicks, style):
+#def start_update(n_clicks):    
+    global progress, running_thread
+
     style['width'] = f'{progress}%'
-    return style, f'{int(progress)}%'
 
-@app.callback(
-    Output('interval-component', 'disabled'),
-    Input('update-button', 'n_clicks')
-)
-def start_update(n_clicks):
-    if n_clicks is not None and n_clicks > 0:
+    if n_clicks not in (None, 0) and not running_thread:
         threading.Thread(target=update_data).start()
-        return False
-    return True
-
-
-
-
-
+        running_thread = True
+        return False, None, style, f'{int(progress)}%'
+    elif running_thread and progress < 99:
+        return False, None, style, f'{int(progress)}%'
+    elif n_intervals > 10:
+        running_thread = False
+        progress = 0
+        style['width'] = f'{progress}%'
+        return True, None, style, f'Atualizado!'
+    else:
+        return True, None, style, f''
 
 
 
