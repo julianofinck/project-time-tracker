@@ -4,9 +4,7 @@ from dash import Dash
 app = Dash(__name__)
 
 from .layout import Layout
-
+from .callbacks import *
 
 # Define layout
 app.layout = Layout().generate()
-
-from .callbacks import *

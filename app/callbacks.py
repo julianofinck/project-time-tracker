@@ -1,22 +1,71 @@
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
-from dash import Input, Output
+from dash import Input, Output, State
 from .__init__ import app
 from .extract import extractor
 import datetime
+import threading
+import time
 
 
-# Button
+# Global progress variable
+progress = 0
+
+def update_data():
+    # For the bar in frontend
+    global progress
+    extractor._get_colleagues()
+    filename_colleagues = [(filename, colleague) for filename, colleagues in extractor.filename_colleagues.items() for colleague in colleagues ]
+    total_iterations = len(filename_colleagues)
+
+    # If not specified, use all colleagues
+    ti = time.time()
+    data = dict()
+    for i, (filename, colleague) in enumerate(filename_colleagues):
+        data[colleague] = extractor._get_df(filename, colleague) 
+        progress = (i + 1) / total_iterations * 100
+
+    extractor.data = data
+    tf = time.time()
+    print("Elapsed time:", int(tf - ti), "s")
+    extractor.colleague_list = list(extractor.data.keys())
+
+    extractor.product_project_list = {
+        colleague: df[["Produto", "Projeto"]].drop_duplicates()
+        for colleague, df in extractor.data.items()
+    }
+
+    extractor._save_state()
+
+# Callback to start the background process
 @app.callback(
-    Output("update-button", "children"), 
-    [Input("update-button", "n_clicks")]
+    Output('update-bar-loading', 'style'),
+    Output('progress-text', 'children'),
+    Input('interval-component', 'n_intervals'),
+    State('update-bar-loading', 'style')
 )
-def update_button(n_clicks):
-    if n_clicks is not None:
-        print("I was clicked")
-        extractor.update_data()
-    return "Ler planilhas"
+def update_progress(n_intervals, style):
+    global progress
+    style['width'] = f'{progress}%'
+    return style, f'{int(progress)}%'
+
+@app.callback(
+    Output('interval-component', 'disabled'),
+    Input('update-button', 'n_clicks')
+)
+def start_update(n_clicks):
+    if n_clicks is not None and n_clicks > 0:
+        threading.Thread(target=update_data).start()
+        return False
+    return True
+
+
+
+
+
+
+
 
 # DatePickerRange
 @app.callback(
@@ -28,7 +77,7 @@ def update_button(n_clicks):
 )
 def update_date_picker(colleague):
     if colleague is None:
-        return tuple(["01/01/0101"] * 4)
+        return tuple(["2000-01-01T00:00:00Z"] * 4)
     
     df = extractor.data[colleague]
     return (

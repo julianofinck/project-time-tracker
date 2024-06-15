@@ -94,13 +94,15 @@ class Extractor:
         # Get colleagues
         self._get_colleagues()
 
+        filename_colleagues = [(filename, colleague) for filename, colleagues in self.filename_colleagues.items() for colleague in colleagues ]
+        total_iterations = len(filename_colleagues)
         # If not specified, use all colleagues
-
         ti = time()
-        self.data = {
-            colleague: self._get_df(filename, colleague) 
-            for filename, colleagues in self.filename_colleagues.items()
-            for colleague in colleagues}
+        data = dict()
+        for i, (filename, colleague) in enumerate(filename_colleagues):
+            data[colleague] = self._get_df(filename, colleague) 
+
+        self.data = data
         tf = time()
         print("Elapsed time:", int(tf - ti), "s")
         self.colleague_list = list(self.data.keys())
@@ -125,10 +127,6 @@ class Extractor:
         with open("app/cache/state.pickle", "wb") as f:
             pickle.dump(extractor, f)
 
-    def update_data(self):
-        self.get_dfs()
-        self._save_state()
-
 
 
 
@@ -138,4 +136,4 @@ if os.path.exists("app/cache/state.pickle"):
         extractor = pickle.load(f)
 else:
     extractor = Extractor()
-    extractor.get_dfs()
+    extractor.update_data()
