@@ -18,3 +18,7 @@ https://imgoffice.sharepoint.com/:x:/r/sites/Codex-Operao/_layouts/15/doc2.aspx?
 https://imgoffice.sharepoint.com/:x:/r/sites/Codex-Operao/_layouts/15/Doc.aspx?sourcedoc=%7B4806d9fc-966a-4372-b117-b9d92d266ca6%7D)
 - [R_ao_Z_APONTAMENTOS_OPE_2023](
 https://imgoffice.sharepoint.com/:x:/r/sites/Codex-Operao/_layouts/15/Doc.aspx?sourcedoc=%7B45261a51-ac24-4499-b8e7-813730aaccbc%7D)
+
+To Do:
+- Rank colleagues by percentage of days filled since start, number of days filled in, number of workdays since start, 1st day, last filled in day
+- Get participants in a specific product and in a project
