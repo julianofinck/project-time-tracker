@@ -15,6 +15,10 @@ https://imgoffice.sharepoint.com/:x:/r/sites/Codex-Operao/_layouts/15/Doc.aspx?s
 |😎 | Style | [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)|
 
 ## How to install
+### Set the directory of the worksheets
+You must have the company worksheets in local. A way of obtaining it is to access the company's Sharepoint, add the directory of the excel sheets as a shortcut to your OneDrive. If you have enabled OneDrive to mirror your cloud to your local computer, you will have the worksheets available. You must copy the path to this local directory and paste it as the environment variable `APONTAMENTOS_DIR` in the `.env`.
+
+### Install project
 ```shell
 # Create a virtual environment
 python3 -m venv .venv      # Linux
@@ -25,7 +29,8 @@ source .venv/bin/activate  # Linux
 # Install requirements using "pip"
 pip install -r requirements.txt
 ```
-run it with `python run.py`
+### Run project
+The application runs with a `python run.py`
 
 ## To Do:
 - Rank colleagues by percentage of days filled since start, number of days filled in, number of workdays since start, 1st day, last filled in day

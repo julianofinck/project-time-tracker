@@ -6,3 +6,6 @@ app/cache/*
 
 **/__pycache__/*
 "*.pyc
+
+# Company excel mock
+company_excel_mock/*
