@@ -92,3 +92,27 @@ html{
 #histogram-commitment-title {
     text-align: center;
 }
+
+/* Histogram Commitment Tabs*/
+#tabs-container {
+    color: black;
+}
+.tabs {
+    border-left: 1vw;
+    border-right: 1vw;
+    margin-right: 1vw;
+}
+.tabs:hover {
+    box-shadow: 2px 2px 20px rgba(17, 169, 27, 1); /* #575756ff */
+    background-color: #e6e6e6;
+    border-color: #7dd100; /* Change border color on hover */
+    color: #575756; /* Change text color on hover */
+    outline: 2px solid #52ba0d; /* Add outline on hover */   
+}
+.tabs--selected {
+    box-shadow: 2px 2px 20px rgba(17, 169, 27, 1); /* #575756ff */
+    background-color: #e6e6e6;
+    border-color: #7dd100; /* Change border color on hover */
+    color: #575756; /* Change text color on hover */
+    outline: 2px solid #52ba0d; /* Add outline on hover */   
+}

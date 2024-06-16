@@ -42,7 +42,14 @@ class Layout:
                 # Commitment Histogram
                 html.Div(
                     [
-                        html.H1("Team Commitment", id="histogram-commitment-title"),
+                        html.H1("Compromisso do Time", id="histogram-commitment-title"),
+                        dcc.Tabs([
+                            dcc.Tab(label="Último Preenchimento", value="value1", className="tabs", selected_className="tabs--selected"),
+                            dcc.Tab(label="1º Preenchimento", value="value2", className="tabs", selected_className="tabs--selected"),
+                            dcc.Tab(label="FilledDays/Workdays", value="value3", className="tabs", selected_className="tabs--selected"),
+                            dcc.Tab(label="Percentage", value="value4", className="tabs", selected_className="tabs--selected"),
+                        ],
+                            id="tabs-container"),
                         dcc.Graph(id="histogram-commitment"),
                     ],
                     id="histogram-commitment-container"

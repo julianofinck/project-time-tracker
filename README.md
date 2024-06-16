@@ -33,5 +33,10 @@ pip install -r requirements.txt
 The application runs with a `python run.py`
 
 ## To Do:
-- Rank colleagues by percentage of days filled since start, number of days filled in, number of workdays since start, 1st day, last filled in day
+- 2nd Histogram - 4 options:
+  - Last day filled in (OK!)
+  - 1st day
+  - FilledDays/Workdays 
+  - % of days filled in
+
 - Get participants in a specific product and in a project
