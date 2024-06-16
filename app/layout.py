@@ -38,7 +38,15 @@ class Layout:
                         self.date_picker(),
                         self.dropdown_lists(),
                         dcc.Graph(id="histogram"),
-                    ])
+                    ]),
+                # Commitment Histogram
+                html.Div(
+                    [
+                        html.H1("Team Commitment", id="histogram-commitment-title"),
+                        dcc.Graph(id="histogram-commitment"),
+                    ],
+                    id="histogram-commitment-container"
+                )
             ]
         )
         return layout

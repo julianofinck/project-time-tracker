@@ -13,23 +13,6 @@ import time
 progress = 0
 running_thread = False
 
-# Espaço para calculos
-a = dict()
-for pessoa, df in extractor.data.items():
-    try:
-        min_ = df["Data"].min()
-    except:
-        min_ = None
-    try:
-        max_ = df["Data"].max()
-    except:
-        max_ = None
-    a[pessoa] = (min_, max_)
-result = pd.DataFrame(a).T
-print(result.sort_values(1))
-# Espaço para calculos
-
-
 
 
 def update_data():
@@ -141,9 +124,12 @@ def update_histogram(start_date, end_date, colleague, project, product):
     # Create layout for histogram
     layout = go.Layout(
         xaxis=dict(tickangle=-35, tickfont=dict(size=8)),
-        autosize=False,
-        height=200,
-        margin=dict(l=7, r=7, b=7, t=7, pad=0),
+        autosize=True,
+        #height=200,
+        #margin=dict(l=7, r=7, b=7, t=7, pad=0),
+        #title='Working Hours Invested',  # Title of the chart
+        #paper_bgcolor='lightgrey',  # Background color of the entire paper
+        #plot_bgcolor='white'  # Background color of the plotting area
     )
     # TODO: Change the hardcoded "7" for something more responsive
 
@@ -271,3 +257,67 @@ def update_product_options(colleague, project):
     options = [{"label": i, "value": i} for i in product_unique]
     options.sort(key=lambda x: x["label"])
     return options
+
+# Commitment-Histogram
+@app.callback(
+    Output("histogram-commitment", "figure"),
+    [
+        Input("date-picker", "start_date"),
+        Input("date-picker", "end_date"),
+        Input("colleague-dropdown", "value"),
+        Input("project-dropdown", "value"),
+        Input("product-dropdown", "value"),
+    ],
+)
+def update_histogram(start_date, end_date, colleague, project, product):
+    
+    df = extractor._individual_commitment()
+
+    # Adjust hasty employees
+    today = datetime.datetime.now().date()
+    hasty_df = df[df.last_date > today]
+    tomorrow = today + datetime.timedelta(1)
+    quantity = len(hasty_df)
+    texto = [f"{row.indices[0]} ({row.last_date})" for _, row in hasty_df.iterrows()]
+    texto = "<br>".join(texto)
+    hasty_row = [tomorrow, texto, quantity]
+    df.loc[len(df)] = hasty_row
+
+    start_date = df['last_date'].min()
+    end_date = tomorrow + datetime.timedelta(1)
+
+    # Create layout for histogram
+    layout = go.Layout(
+        xaxis=dict(
+            tickangle=-35,
+            tickfont=dict(size=8),
+            range=[start_date, end_date]),
+        #autosize=False,
+        #height=200,
+        #margin=dict(l=7, r=7, b=7, t=7, pad=0),
+        #title='Team Commitment',  # Title of the chart
+        #paper_bgcolor='lightgrey',  # Background color of the entire paper
+        #plot_bgcolor='white'  # Background color of the plotting area
+    )
+    # TODO: Change the hardcoded "7" for something more responsive
+
+    # Create histogram
+    hist_data = [
+        go.Bar(
+            x=[str(k) for k in df.last_date],
+            y=df.quantity,
+            text=[f"{v}" for v in df.indices],
+            hovertemplate=[
+                f"{v} <br>{k}<extra></extra>"
+                for k, v in zip(df.last_date, df.indices)
+            ],  # Full x-values in hovertemplate
+            marker=dict(
+                color="#198238",  # Color hex code
+            ),
+        )
+    ]
+   
+    # Create figure
+    figure = go.Figure(data=hist_data, layout=layout)
+
+    return figure

@@ -24,6 +24,7 @@ class Extractor:
         self.filename_colleagues = None
         self.data = None
         self.product_project_list = None
+        self.individual_commitment = None
 
     def _filter_desired(self):
         if self.colleague_list is not None:
@@ -126,6 +127,25 @@ class Extractor:
 
         with open("app/cache/state.pickle", "wb") as f:
             pickle.dump(extractor, f)
+
+    def _individual_commitment(self):
+        a = dict()
+        for pessoa, df in self.data.items():
+            try:
+                min_ = df["Data"].min().date()
+            except:
+                min_ = None
+            try:
+                max_ = df["Data"].max().date()
+            except:
+                max_ = None
+            a[pessoa] = (min_, max_)
+        result = pd.DataFrame(a).T
+        result.columns = ["first_date", "last_date"]
+        result = result.groupby('last_date').apply(lambda x: list(x.index)).reset_index(name='indices')
+        result["quantity"] = result.indices.apply(lambda x: len(x))
+        self.individual_commitment = result
+        return self.individual_commitment
 
 
 

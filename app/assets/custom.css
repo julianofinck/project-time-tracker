@@ -2,6 +2,7 @@ html{
     background-color: #21272A;
     font-family: "Open Sans";
     color: #e8e8e8;
+    font-size: 1vw;
 }
 
 #title{
@@ -52,6 +53,8 @@ html{
     width: 100%;
     height: 300px;
 }
+
+
 /* Update area */
 #update-area{
     width: fit-content;
@@ -59,21 +62,33 @@ html{
 }
 #progress-text{
     text-align: center;
-    font-size: 8px;
+    font-size: 3vw;
 }
-
-
 /* Update button */
 #update-button{
     width: 100%;
     height: 100%;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 1vw;
+    padding-right: 1vw;
+    font-size: 1vw;
 }
 #update-button:hover {
-    box-shadow: 0 4px 8px rgba(3, 255, 78, 0.3); /* Add shadow on hover */
-    background-color: #007bff;
-    border-color: #f07bff; /* Change border color on hover */
-    color: #00ff00; /* Change text color on hover */
-    outline: 2px solid #ffffff; /* Add outline on hover */
+    box-shadow: 2px 2px 20px rgba(17, 169, 27, 1); /* #575756ff */
+    background-color: #e6e6e6;
+    border-color: #7dd100; /* Change border color on hover */
+    color: #575756; /* Change text color on hover */
+    outline: 2px solid #52ba0d; /* Add outline on hover */
+}
+
+
+/* Histogram Commitment */
+#histogram-commitment-container {
+    padding-right: 1vw;
+    padding-left: 1vw;
+}
+#histogram-commitment {
+    margin-top: 20px;
+}
+#histogram-commitment-title {
+    text-align: center;
 }
