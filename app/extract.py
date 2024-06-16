@@ -137,4 +137,4 @@ if os.path.exists("app/cache/state.pickle"):
 else:
     extractor = Extractor()
     extractor.get_dfs()
-    extracotr._save_state()
+    extractor._save_state()
