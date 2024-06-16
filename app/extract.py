@@ -136,4 +136,5 @@ if os.path.exists("app/cache/state.pickle"):
         extractor = pickle.load(f)
 else:
     extractor = Extractor()
-    extractor.update_data()
+    extractor.get_dfs()
+    extracotr._save_state()

@@ -33,7 +33,6 @@ print(result.sort_values(1))
 
 
 def update_data():
-    
     # For the bar in frontend
     global progress
     extractor._get_colleagues()
