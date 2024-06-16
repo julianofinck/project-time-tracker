@@ -13,6 +13,25 @@ import time
 progress = 0
 running_thread = False
 
+# Espaço para calculos
+a = dict()
+for pessoa, df in extractor.data.items():
+    try:
+        min_ = df["Data"].min()
+    except:
+        min_ = None
+    try:
+        max_ = df["Data"].max()
+    except:
+        max_ = None
+    a[pessoa] = (min_, max_)
+result = pd.DataFrame(a).T
+print(result.sort_values(1))
+# Espaço para calculos
+
+
+
+
 def update_data():
     
     # For the bar in frontend
