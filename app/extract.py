@@ -141,9 +141,21 @@ class Extractor:
                 max_ = None
             a[pessoa] = (min_, max_)
         result = pd.DataFrame(a).T
+
+        # Filter out former employees
+        former_employees = os.getenv("FORMER_EMPLOYEES")
+        if former_employees is not None:
+            former_employees = [former_employee.strip()
+                for former_employee in former_employees.replace(" e ", ",").split(",")]
+            result = result[~result.index.isin(former_employees)]
+
+        # Set column names
         result.columns = ["first_date", "last_date"]
+
+        # Group by last_date
         result = result.groupby('last_date').apply(lambda x: list(x.index)).reset_index(name='indices')
         result["quantity"] = result.indices.apply(lambda x: len(x))
+
         self.individual_commitment = result
         return self.individual_commitment
 

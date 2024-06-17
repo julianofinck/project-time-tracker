@@ -279,7 +279,7 @@ def update_histogram(start_date, end_date, colleague, project, product):
     tomorrow = today + datetime.timedelta(1)
     quantity = len(hasty_df)
     texto = [f"{row.indices[0]} ({row.last_date})" for _, row in hasty_df.iterrows()]
-    texto = "<br>".join(texto)
+    texto = "Colegas do Futuro:<br>" + "<br>".join(texto)
     hasty_row = [tomorrow, texto, quantity]
     df.loc[len(df)] = hasty_row
 
