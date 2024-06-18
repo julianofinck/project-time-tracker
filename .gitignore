@@ -9,3 +9,6 @@ app/cache/*
 
 # Company excel mock
 company_excel_mock/*
+
+#
+.env
