@@ -73,11 +73,12 @@ class Extractor:
 
     def _get_df(self, file_name: str, colleague: str) -> pd.DataFrame:
         print(" >>", colleague)
+
         # Get df
         df = pd.read_excel(file_name, sheet_name=colleague)
 
         # Drop na
-        mask = (~df["Colaborador"].isna()) & (~df["Horas totais"].isna())
+        mask = (~df["Colaborador"].isna()) & (~df["Horas totais"].isna()) & (~df["Data"].isna())
         df = df[mask]
 
         # Relevant for dash

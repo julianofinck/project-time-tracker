@@ -7,7 +7,7 @@ from .extract import extractor
 import datetime
 import threading
 import time
-
+import plotly
 
 # Global progress variable
 progress = 0
@@ -38,8 +38,12 @@ def update_data():
     ti = time.time()
     data = dict()
     for i, (filename, colleague) in enumerate(filename_colleagues):
-        data[colleague] = extractor._get_df(filename, colleague) 
-        progress = (i + 1) / total_iterations * 100
+        df = extractor._get_df(filename, colleague) 
+
+        # Ignore those colleagues that barelly fill their working hours
+        if len(df) >= 10:
+            data[colleague] = df
+            progress = (i + 1) / total_iterations * 100
 
     # TODO: stop interval
 
@@ -125,13 +129,15 @@ def update_histogram(start_date, end_date, colleague, project, product):
     layout = go.Layout(
         xaxis=dict(tickangle=-35, tickfont=dict(size=8)),
         autosize=True,
-        #height=200,
-        #margin=dict(l=7, r=7, b=7, t=7, pad=0),
-        #title='Working Hours Invested',  # Title of the chart
-        #paper_bgcolor='lightgrey',  # Background color of the entire paper
-        #plot_bgcolor='white'  # Background color of the plotting area
+        plot_bgcolor='lightgrey',
+        margin=dict(
+                l=14,
+                r=14,
+                b=14,
+                t=14,
+                pad=5
+            ),
     )
-    # TODO: Change the hardcoded "7" for something more responsive
 
     if colleague is None:
         hist_data = [
@@ -207,12 +213,11 @@ def update_histogram(start_date, end_date, colleague, project, product):
     Output("colleague-dropdown", "options"),
     [
         Input("colleague-dropdown", "value"),
+        Input("date-picker", "start_date"),
+        Input("date-picker", "end_date"),
     ]
 )
-def update_project_options(something):
-    #if something is None:
-    #    return [{'label': 'No selection', 'value': 'No selection'}]
-    
+def update_colleague_options(something, start_date, end_date):
     options = [{"label": i, "value": i} for i in extractor.data.keys()]
     options.sort(key=lambda x: x["label"])
     return options
@@ -222,16 +227,21 @@ def update_project_options(something):
     Output("project-dropdown", "options"),
     [
         Input("colleague-dropdown", "value"),
+        Input("date-picker", "start_date"),
+        Input("date-picker", "end_date"),
     ],
 )
-def update_project_options(colleague):
+def update_project_options(colleague, start_date, end_date):
     if colleague is None:
-        return [{'label': 'No selection', 'value': 'No selection'}]
+        text = "Select a colleague"
+        return [{'label': text, 'value': text}]
     
-    project_project = extractor.product_project_list[colleague]
-    project_no_na = project_project["Projeto"].dropna()
-    project_unique = project_no_na.unique()
-    options = [{"label": i, "value": i} for i in project_unique]
+    # Filter by date
+    data = extractor.data[colleague]
+    mask = (data.Data > start_date) & (data.Data < end_date)
+    projects = data[mask].Projeto.dropna().unique()
+    projects.sort()
+    options = [{"label": i, "value": i} for i in projects]
     options.sort(key=lambda x: x["label"])
     return options
 
@@ -239,22 +249,36 @@ def update_project_options(colleague):
 # DropDownList - Produto
 @app.callback(
     Output("product-dropdown", "options"),
-    [Input("colleague-dropdown", "value"), Input("project-dropdown", "value")],
+    [
+        Input("colleague-dropdown", "value"), 
+        Input("project-dropdown", "value"),
+        Input("date-picker", "start_date"),
+        Input("date-picker", "end_date"),
+    ],
 )
-def update_product_options(colleague, project):
+def update_product_options(colleague, project, start_date, end_date):
     if colleague is None:
-        return [{'label': 'No selection', 'value': 'No selection'}]
+        text = "Select a colleague"
+        return [{'label': text, 'value': text}]
     
-    # Get project-product list
-    product_project = extractor.product_project_list[colleague]
+    # Filter by date
+    data = extractor.data[colleague]
+    mask = (data.Data > start_date) & (data.Data < end_date)
+    data = data[mask]
 
+    # Filter by project (Codex)
+    if str(project).lower() == "codex":
+        text = "Sem produto"
+        return [{'label': text, 'value': text}]
+    
+    # Filter by project
     if project is not None:
-        mask = product_project["Projeto"] == project
-        product_project = product_project[mask]
+        mask = data.Projeto == project
+        data = data[mask]
 
-    product_no_na = product_project["Produto"].dropna()
-    product_unique = product_no_na.unique()
-    options = [{"label": i, "value": i} for i in product_unique]
+    products = data.Produto.dropna().unique()
+    products.sort()
+    options = [{"label": i, "value": i} for i in products]
     options.sort(key=lambda x: x["label"])
     return options
 
@@ -283,7 +307,7 @@ def update_histogram(start_date, end_date, colleague, project, product):
     hasty_row = [tomorrow, texto, quantity]
     df.loc[len(df)] = hasty_row
 
-    start_date = df['last_date'].min()
+    start_date = df['last_date'].min() - datetime.timedelta(1)
     end_date = tomorrow + datetime.timedelta(1)
 
     # Create layout for histogram
@@ -292,12 +316,15 @@ def update_histogram(start_date, end_date, colleague, project, product):
             tickangle=-35,
             tickfont=dict(size=8),
             range=[start_date, end_date]),
-        #autosize=False,
-        #height=200,
-        #margin=dict(l=7, r=7, b=7, t=7, pad=0),
-        #title='Team Commitment',  # Title of the chart
-        #paper_bgcolor='lightgrey',  # Background color of the entire paper
-        #plot_bgcolor='white'  # Background color of the plotting area
+            #paper_bgcolor='lightgrey',  # Background color of the entire paper
+            plot_bgcolor='lightgrey',  # Background color of the plotting area
+            margin=dict(
+                l=14,
+                r=14,
+                b=14,
+                t=14,
+                pad=5
+            ),
     )
     # TODO: Change the hardcoded "7" for something more responsive
 
@@ -318,6 +345,7 @@ def update_histogram(start_date, end_date, colleague, project, product):
     ]
    
     # Create figure
+    figure = go.Figure(data=hist_data, layout=layout)
     figure = go.Figure(data=hist_data, layout=layout)
 
     return figure

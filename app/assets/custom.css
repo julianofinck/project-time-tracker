@@ -1,39 +1,69 @@
 html{
-    background-color: #21272A;
+    background-color: #000000;
     font-family: "Open Sans";
     color: #e8e8e8;
     font-size: 1vw;
 }
-
+/* Individual Analysis */
+#individual-analysis{
+    margin-bottom: 3vw;
+}
+.card{
+    border-radius: 5px;
+    margin: 1vw;
+    border: 1vw;
+    padding: 1vw;
+    box-shadow: 2px 2px 20px rgb(0, 0, 0); /* #575756ff */
+    background-color: #21272A;
+    border-color: #7dd100;
+    color: #ffffff;
+    outline: 2px solid #424242;
+}
+.card:hover{
+    box-shadow: 2px 2px 10px rgb(255, 255, 255); /* #575756ff */
+    background-color: #21272A;
+    border-color: #7dd100;
+    outline: 2px solid #21711c;
+}
 #title{
-    width: 100vw;
+    width: 100%;
     text-align: center;
     height: fit-content;
     margin: 0px;
     color: white;
 }
+/* Period */
 #subtitle{
-    width: 100vw;
+    width: 100%;
     height: fit-content;
     text-align: center;
     margin: 0px;
+    border: 0px;
+    padding-top: 1vw;
 }
 #date-picker{
     width: 100%;
-    padding-top: 1%;
+    padding: 0px;
+    padding-bottom: 1vw;
+    margin: 0px;
+    border: 0px;
     text-align: center;
+
 }
 .DateInput_input{
     padding: 0px;
+    font-size: 1vw;
     text-align: center;
 }
+/* --------- */
+
 #dropdown-container-div{
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
     height: fit-content;
     padding-top: 10px;
-    padding-bottom: 10px;
+    padding-bottom: 0px;
     align-items: center;
 }
 .dropdown-container{
@@ -59,6 +89,11 @@ html{
 #update-area{
     width: fit-content;
     height: fit-content;
+    position: absolute;
+    right: 4vw;
+    top: 2vw;
+    display: flex;
+    flex-direction: column;
 }
 #progress-text{
     text-align: center;
@@ -87,7 +122,10 @@ html{
     padding-left: 1vw;
 }
 #histogram-commitment {
-    margin-top: 20px;
+    margin-top: 1vw;
+    padding-right: .5vw;
+    padding-left: .5vw;
+
 }
 #histogram-commitment-title {
     text-align: center;
@@ -96,11 +134,16 @@ html{
 /* Histogram Commitment Tabs*/
 #tabs-container {
     color: black;
-}
-.tabs {
     border-left: 1vw;
     border-right: 1vw;
-    margin-right: 1vw;
+    height: fit-content;
+}
+.tabs {
+    border-left: .5vw;
+    border-right: .5vw;
+    margin-right: .5vw;
+    margin-left: .5vw;
+    border-radius: 5px;
 }
 .tabs:hover {
     box-shadow: 2px 2px 20px rgba(17, 169, 27, 1); /* #575756ff */
