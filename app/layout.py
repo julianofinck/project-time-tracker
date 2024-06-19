@@ -29,7 +29,7 @@ class Layout:
                             'backgroundColor': 'green'}),
                     ],
                     id="update-area"),
-                html.H1("Visualizador dos Apontamentos",
+                html.H1("Apontamentos do Colaborador",
                     id="title",
                     ),
                 self.dropdown_lists(),
@@ -51,7 +51,7 @@ class Layout:
             # Commitment Histogram
             html.Div(
                 [
-                    html.H1("Compromisso do Time", id="histogram-commitment-title"),
+                    html.H1("Compromisso da Equipe", id="histogram-commitment-title"),
                     dcc.Tabs([
                         dcc.Tab(label="Último Preenchimento", value="value1", className="tabs", selected_className="tabs--selected", style={"padding": "4px"}),
                         dcc.Tab(label="1º Preenchimento", value="value2", className="tabs", selected_className="tabs--selected", style={"padding": "4px"}),
