@@ -29,12 +29,12 @@ class Layout:
                             'backgroundColor': 'green'}),
                     ],
                     id="update-area"),
-                html.H1("Apontamentos do Colaborador",
+                html.H1("Visualizador de Apontamentos",
                     id="title",
                     ),
                 self.dropdown_lists(),
                 html.Div([
-                    html.P("Horas despendidas no período considerado:",
+                    html.P("Período de Interesse",
                         id="subtitle"),
                     dcc.DatePickerRange(
                         min_date_allowed="2022-01-01",

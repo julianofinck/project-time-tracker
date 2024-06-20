@@ -45,18 +45,20 @@ def update_data():
             data[colleague] = df
             progress = (i + 1) / total_iterations * 100
 
-    # TODO: stop interval
+    # Concatenate
+    data = pd.concat(data.values()).reset_index(drop=True)
 
+    # Adjust column names
+    data.columns = ["date", "project", "product", "activity", "hours", "colleague"]
+
+    # Store in class
     extractor.data = data
+
+    # Print elapsed time
     tf = time.time()
     print("Elapsed time:", int(tf - ti), "s")
-    extractor.colleague_list = list(extractor.data.keys())
 
-    extractor.product_project_list = {
-        colleague: df[["Produto", "Projeto"]].drop_duplicates()
-        for colleague, df in extractor.data.items()
-    }
-
+    # Save state
     extractor._save_state()
     return 0
 
@@ -91,7 +93,6 @@ def start_update(n_intervals, n_clicks, style):
         return True, None, style, f''
 
 
-
 # DatePickerRange
 @app.callback(
     Output("date-picker", "min_date_allowed"),
@@ -102,7 +103,16 @@ def start_update(n_intervals, n_clicks, style):
 )
 def update_date_picker(colleague):
     if colleague is None:
-        return tuple(["2000-01-01T00:00:00Z"] * 4)
+        today = datetime.datetime.now()
+        yesterday = (today - datetime.timedelta(7)).strftime("%Y-%m-%d")
+        today = today.strftime("%Y-%m-%d")
+        
+        return (
+            yesterday,
+            today,
+            yesterday,
+            today
+        )
     
     df = extractor.data[colleague]
     return (
@@ -139,86 +149,93 @@ def update_histogram(start_date, end_date, colleague, project, product):
             ),
     )
 
-    if colleague is None:
-        hist_data = [
-        go.Bar(
-            x=["No selection"],
-            y=[0],
-            text=[""],
-            hovertemplate=["No selection<extra></extra>"],
-            marker=dict(
-                color="#198238",  # Color hex code
-            ),
-        )]
-    
-        # Create figure
-        figure = go.Figure(data=hist_data)
-        return figure
-    
-    # Get the data accordingly
-    df = extractor.data[colleague]
+    # TODO: Case in which data is empty
 
-    # Filter data based on selected dates
-    start_datetime = pd.to_datetime(start_date)
-    end_datetime = pd.to_datetime(end_date)
-    filtered_df = df[(df["Data"] >= start_datetime) & (df["Data"] <= end_datetime)]
+    # Filter date initial mask
+    data = extractor.data
+    mask = (start_date <data["date"]) & (data.date < end_date)
 
-    # Filter by project, show products
-    groupby_field = "Projeto"
-    mask = filtered_df["Projeto"].copy()
-    mask.loc[:] = True
-    if project not in (None, "Empty"):
-        mask = mask & (filtered_df["Projeto"] == project)
-        groupby_field = "Produto"
+    # Neither project nor product selected -> show project
+    if project is None and product is None:
+        if colleague is not None:
+            mask = mask & (data["colleague"] == colleague)
+        grouped = data.loc[mask, ["project", "hours"]].groupby(["project"]).sum()
+    
+    # Project selected, Product is none
+    elif project is not None and product is None:
+        mask = mask & (data["project"] == project)
+        if colleague is not None:
+            mask = mask & (data["colleague"] == colleague)
+
+        # CODEX case
         if project == "CODEX":
-            groupby_field = "Atividade"
+            grouped = data.loc[mask, ["activity", "hours"]].groupby(["activity"]).sum()
+        else:
+            grouped = data.loc[mask, ["product", "hours"]].groupby(["product"]).sum()
+    
+    # Project is none, Product selected
+    elif project is None and product is not None:
+        mask = mask & (data["product"] == product)
+        if colleague is not None:
+            mask = mask & (data["colleague"] == colleague)
+        grouped = data.loc[mask, ["activity", "hours"]].groupby(["activity"]).sum()
 
-    # Filter by project, show products
-    if product not in (None, "Empty"):
-        mask = mask & (filtered_df["Produto"] == product)
-        groupby_field = "Atividade"
+    # Project selected, Product selected
+    elif project is not None and product is not None:
+        mask = mask & (data["project"] == project) & (data["product"] == product)
+        if colleague is not None:
+            mask = mask & (data["colleague"] == colleague)
 
-    # Group by project and sum hours
-    filtered_df = filtered_df[mask]
-    grouped = (
-        filtered_df.groupby(groupby_field)["Horas totais"]
-        .sum()
-        .sort_values(ascending=False)
-        .round(2)
-    )
-
-    # Create histogram
+        # CODEX case
+        if project == "CODEX":
+            grouped = data.loc[mask, ["activity", "hours"]].groupby(["activity"]).sum()
+        else:
+            grouped = data.loc[mask, ["activity", "hours"]].groupby(["activity"]).sum()
+    
+    # Sort values and make hist_data
+    grouped = grouped.sort_values(by="hours", ascending=False)
     hist_data = [
         go.Bar(
-            x=[str(k) for k in grouped.index],
-            y=grouped.values,
-            text=[f"{round(v, 2)} h" for v in grouped.values],
+            x=[x for x in grouped.index],
+            y=[h for h in grouped.hours],
+            text=[f"{round(v, 2)} h" for v in grouped.hours],
             hovertemplate=[
-                f"{round(v, 2)} h<br>{k}<extra></extra>"
-                for k, v in zip(grouped.index, grouped.values)
-            ],  # Full x-values in hovertemplate
+                f"{round(h, 2)} h<br>{x}<extra></extra>"
+                for x, h in zip(grouped.index, grouped.hours)
+            ],
             marker=dict(
                 color="#198238",  # Color hex code
             ),
         )
     ]
-   
-    # Create figure
-    figure = go.Figure(data=hist_data, layout=layout)
 
+    # Create figure
+    figure = go.Figure(data=hist_data)
     return figure
+
 
 # DropDownList - Colleague
 @app.callback(
     Output("colleague-dropdown", "options"),
     [
         Input("colleague-dropdown", "value"),
+        Input("project-dropdown", "value"),
+        Input("product-dropdown", "value"),
         Input("date-picker", "start_date"),
         Input("date-picker", "end_date"),
     ]
 )
-def update_colleague_options(something, start_date, end_date):
-    options = [{"label": i, "value": i} for i in extractor.data.keys()]
+def update_colleague_options(colleague, project, product, start_date, end_date):
+    # Filter date initial mask
+    data = extractor.data
+    mask = (start_date <data["date"]) & (data.date < end_date)
+
+    if project is not None:
+        mask = mask & (data["project"] == project)
+    if product is not None:
+        mask = mask & (data["product"] == product)
+
+    options = [{"label": i, "value": i} for i in data[mask]["colleague"].unique()]
     options.sort(key=lambda x: x["label"])
     return options
 
@@ -232,18 +249,17 @@ def update_colleague_options(something, start_date, end_date):
     ],
 )
 def update_project_options(colleague, start_date, end_date):
-    if colleague is None:
-        text = "Select a colleague"
-        return [{'label': text, 'value': text}]
+    data = extractor.data
+    filter_date = (start_date <data["date"]) & (data.date < end_date)
     
-    # Filter by date
-    data = extractor.data[colleague]
-    mask = (data.Data > start_date) & (data.Data < end_date)
-    projects = data[mask].Projeto.dropna().unique()
-    projects.sort()
-    options = [{"label": i, "value": i} for i in projects]
-    options.sort(key=lambda x: x["label"])
-    return options
+    if colleague is None:
+        projects = data[filter_date]["project"].dropna().unique()
+        projects.sort()
+        return [{'label': project, 'value': project} for project in projects]
+    else:
+        projects = data[filter_date & (data["colleague"] == colleague)].project.dropna().unique()
+        projects.sort()
+        return [{'label': project, 'value': project} for project in projects]
 
 
 # DropDownList - Produto
@@ -257,30 +273,34 @@ def update_project_options(colleague, start_date, end_date):
     ],
 )
 def update_product_options(colleague, project, start_date, end_date):
-    if colleague is None:
-        text = "Select a colleague"
-        return [{'label': text, 'value': text}]
-    
-    # Filter by date
-    data = extractor.data[colleague]
-    mask = (data.Data > start_date) & (data.Data < end_date)
-    data = data[mask]
+    data = extractor.data
+    filter_date = (start_date <data["date"]) & (data.date < end_date)
 
-    # Filter by project (Codex)
-    if str(project).lower() == "codex":
-        text = "Sem produto"
-        return [{'label': text, 'value': text}]
+    if colleague is None and project is None:
+        products = data[filter_date]["product"].dropna().unique()
+        
+    elif colleague is None and project is not None:
+        if project == "CODEX":
+            # todo: add javascript that changes label "Produto" to "Atividade" if CODEX is picked
+            products = data[filter_date & (data["project"] == project)]["activity"].dropna().unique()
+        else:
+            products = data[filter_date & (data["project"] == project)]["product"].dropna().unique()
+        
+    elif colleague is not None and project is None:
+        products = data[filter_date & (data["colleague"] == colleague)]["product"].dropna().unique()
     
-    # Filter by project
-    if project is not None:
-        mask = data.Projeto == project
-        data = data[mask]
+    elif colleague is not None and project is not None:
+        if project == "CODEX":
+            # todo: add javascript that changes label "Produto" to "Atividade" if CODEX is picked
+            products = data[filter_date & (data["colleague"] == colleague) & (data["project"] == project)]["activity"].dropna().unique()
+        else:
+            products = data[filter_date & (data["colleague"] == colleague) & (data["project"] == project)]["product"].dropna().unique()
+        
 
-    products = data.Produto.dropna().unique()
     products.sort()
-    options = [{"label": i, "value": i} for i in products]
-    options.sort(key=lambda x: x["label"])
+    options = [{'label': product, 'value': product} for product in products]
     return options
+
 
 # Commitment-Histogram
 @app.callback(
@@ -294,20 +314,37 @@ def update_product_options(colleague, project, start_date, end_date):
     ],
 )
 def update_histogram(start_date, end_date, colleague, project, product):
+
+    data = extractor.data
     
-    df = extractor._individual_commitment()
+    # Get date of last filled day and groupby day
+    df = data[["colleague", "date"]].groupby(by="colleague", as_index=False).max()
+    df = df.groupby("date", as_index=False)["colleague"].apply(', '.join)
+    df["date"] = df["date"].apply(lambda date: date.date())
+
+    # Count quantity
+    df["quantity"] = df["colleague"].apply(lambda x: x.count(",") + 1)
 
     # Adjust hasty employees
     today = datetime.datetime.now().date()
-    hasty_df = df[df.last_date > today]
-    tomorrow = today + datetime.timedelta(1)
-    quantity = len(hasty_df)
-    texto = [f"{row.indices[0]} ({row.last_date})" for _, row in hasty_df.iterrows()]
-    texto = "Colegas do Futuro:<br>" + "<br>".join(texto)
-    hasty_row = [tomorrow, texto, quantity]
-    df.loc[len(df)] = hasty_row
+    tomorrow = (today + datetime.timedelta(1))
+    hasty_mask = df["date"] > today
+    hasty_df = df[hasty_mask]
+    quantity = hasty_df["quantity"].sum()
 
-    start_date = df['last_date'].min() - datetime.timedelta(1)
+    texto = [f"{row['colleague']} ({row['date'].strftime('%Y-%m-%d')})" for _, row in hasty_df.iterrows()]
+    texto = "Colegas do Futuro:<br>" + "<br>".join(texto)
+
+    # Eliminate future dates
+    # TODO:
+
+    # Add new register for visualizaiton
+    df.loc[len(df)] = [tomorrow, texto, quantity]
+
+    # Count
+    df.groupby("date").size().reset_index(name="quantity")
+
+    start_date = df["date"].min() - datetime.timedelta(1)
     end_date = tomorrow + datetime.timedelta(1)
 
     # Create layout for histogram
@@ -331,12 +368,12 @@ def update_histogram(start_date, end_date, colleague, project, product):
     # Create histogram
     hist_data = [
         go.Bar(
-            x=[str(k) for k in df.last_date],
-            y=df.quantity,
-            text=[f"{v}" for v in df.indices],
+            x=df["date"],
+            y=df["quantity"],
+            text=df["colleague"],
             hovertemplate=[
                 f"{v} <br>{k}<extra></extra>"
-                for k, v in zip(df.last_date, df.indices)
+                for k, v in zip(df["date"], df["colleague"])
             ],  # Full x-values in hovertemplate
             marker=dict(
                 color="#198238",  # Color hex code
@@ -345,7 +382,6 @@ def update_histogram(start_date, end_date, colleague, project, product):
     ]
    
     # Create figure
-    figure = go.Figure(data=hist_data, layout=layout)
     figure = go.Figure(data=hist_data, layout=layout)
 
     return figure

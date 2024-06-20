@@ -78,11 +78,14 @@ class Extractor:
         df = pd.read_excel(file_name, sheet_name=colleague)
 
         # Drop na
-        mask = (~df["Colaborador"].isna()) & (~df["Horas totais"].isna()) & (~df["Data"].isna())
+        mask = (~df["Data"].isna()) & (~df["Horas totais"].isna()) 
         df = df[mask]
 
         # Relevant for dash
-        df_dash = df[["Data", "Projeto", "Produto", "Atividade", "Horas totais"]]
+        df_dash = df[["Data", "Projeto", "Produto", "Atividade", "Horas totais"]].copy()
+        df_dash["Colaborador"] = colleague
+
+        # Convert to hour
         df_dash.loc[:, "Horas totais"] = df_dash["Horas totais"].apply(
             lambda time: round(time.hour + time.minute / 60 + time.second / 3600, 2)
         )
@@ -98,21 +101,29 @@ class Extractor:
 
         filename_colleagues = [(filename, colleague) for filename, colleagues in self.filename_colleagues.items() for colleague in colleagues ]
         total_iterations = len(filename_colleagues)
+
         # If not specified, use all colleagues
         ti = time()
         data = dict()
         for i, (filename, colleague) in enumerate(filename_colleagues):
-            data[colleague] = self._get_df(filename, colleague) 
+            data[colleague] = self._get_df(filename, colleague)
 
+        # Concatenate
+        data = pd.concat(data.values()).reset_index(drop=True)
+
+        # Adjust column names
+        data.columns = ["date", "project", "product", "activity", "hours", "colleague"]
+
+        # Store in class
         self.data = data
+
+        # Print elapsed time
         tf = time()
         print("Elapsed time:", int(tf - ti), "s")
-        self.colleague_list = list(self.data.keys())
 
-        self.product_project_list = {
-            colleague: df[["Produto", "Projeto"]].drop_duplicates()
-            for colleague, df in self.data.items()
-        }
+        # Save state
+        extractor._save_state()
+
 
     def _define_name(self, row):
         # Deprecated
