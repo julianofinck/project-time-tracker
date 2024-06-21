@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
@@ -102,25 +103,27 @@ def start_update(n_intervals, n_clicks, style):
     [Input("colleague-dropdown", "value")],
 )
 def update_date_picker(colleague):
+    data = extractor.data.copy()
+
     if colleague is None:
         today = datetime.datetime.now()
         yesterday = (today - datetime.timedelta(7)).strftime("%Y-%m-%d")
         today = today.strftime("%Y-%m-%d")
         
         return (
-            yesterday,
-            today,
+            data["date"].min().strftime("%Y-%m-%d"),
+            data["date"].max().strftime("%Y-%m-%d"),
             yesterday,
             today
         )
-    
-    df = extractor.data[colleague]
-    return (
-        df["Data"].min().strftime("%Y-%m-%d"),
-        df["Data"].max().strftime("%Y-%m-%d"),
-        df["Data"].min().strftime("%Y-%m-%d"),
-        df["Data"].max().strftime("%Y-%m-%d"),
-    )
+    else:
+        data = data[data["colleague"] == colleague]
+        return (
+            data["date"].min().strftime("%Y-%m-%d"),
+            data["date"].max().strftime("%Y-%m-%d"),
+            data["date"].min().strftime("%Y-%m-%d"),
+            data["date"].max().strftime("%Y-%m-%d"),
+        )
 
 
 # Histogram
@@ -135,20 +138,6 @@ def update_date_picker(colleague):
     ],
 )
 def update_histogram(start_date, end_date, colleague, project, product):
-    # Create layout for histogram
-    layout = go.Layout(
-        xaxis=dict(tickangle=-35, tickfont=dict(size=8)),
-        autosize=True,
-        plot_bgcolor='lightgrey',
-        margin=dict(
-                l=14,
-                r=14,
-                b=14,
-                t=14,
-                pad=5
-            ),
-    )
-
     # TODO: Case in which data is empty
 
     # Filter date initial mask
@@ -182,14 +171,15 @@ def update_histogram(start_date, end_date, colleague, project, product):
 
     # Project selected, Product selected
     elif project is not None and product is not None:
-        mask = mask & (data["project"] == project) & (data["product"] == product)
         if colleague is not None:
             mask = mask & (data["colleague"] == colleague)
 
         # CODEX case
         if project == "CODEX":
-            grouped = data.loc[mask, ["activity", "hours"]].groupby(["activity"]).sum()
+            mask = mask & (data["project"] == project) & (data["activity"] == product)
+            grouped = data.loc[mask, ["colleague", "hours"]].groupby(["colleague"]).sum()
         else:
+            mask = mask & (data["project"] == project) & (data["product"] == product)
             grouped = data.loc[mask, ["activity", "hours"]].groupby(["activity"]).sum()
     
     # Sort values and make hist_data
@@ -209,8 +199,22 @@ def update_histogram(start_date, end_date, colleague, project, product):
         )
     ]
 
+    # Create layout for histogram
+    layout = go.Layout(
+        xaxis=dict(tickangle=-35, tickfont=dict(size=8)),
+        autosize=True,
+        plot_bgcolor='lightgrey',
+        margin=dict(
+                l=14,
+                r=14,
+                b=14,
+                t=14,
+                pad=5
+            ),
+    )
+
     # Create figure
-    figure = go.Figure(data=hist_data)
+    figure = go.Figure(data=hist_data, layout=layout)
     return figure
 
 
@@ -254,17 +258,17 @@ def update_project_options(colleague, start_date, end_date):
     
     if colleague is None:
         projects = data[filter_date]["project"].dropna().unique()
-        projects.sort()
-        return [{'label': project, 'value': project} for project in projects]
     else:
         projects = data[filter_date & (data["colleague"] == colleague)].project.dropna().unique()
-        projects.sort()
-        return [{'label': project, 'value': project} for project in projects]
+
+    projects.sort()
+    return [{'label': project, 'value': project} for project in projects]
 
 
 # DropDownList - Produto
 @app.callback(
     Output("product-dropdown", "options"),
+    Output("product-dropdown-title", "children"),
     [
         Input("colleague-dropdown", "value"), 
         Input("project-dropdown", "value"),
@@ -299,7 +303,12 @@ def update_product_options(colleague, project, start_date, end_date):
 
     products.sort()
     options = [{'label': product, 'value': product} for product in products]
-    return options
+
+    # CODEX has no produtos.
+    if project == "CODEX":
+        return options, "Atividade"
+    else:
+        return options, "Produto"
 
 
 # Commitment-Histogram
@@ -319,6 +328,13 @@ def update_histogram(start_date, end_date, colleague, project, product):
     
     # Get date of last filled day and groupby day
     df = data[["colleague", "date"]].groupby(by="colleague", as_index=False).max()
+
+    # Remove former employees
+    former_employees = os.getenv("FORMER_EMPLOYEES")
+    former_employees = [e.strip() for e in former_employees.replace(" e ", ", ").split(",")]
+    df = df[~df["colleague"].isin(former_employees)].reset_index(drop=True)
+
+    # Group by date
     df = df.groupby("date", as_index=False)["colleague"].apply(', '.join)
     df["date"] = df["date"].apply(lambda date: date.date())
 
@@ -370,7 +386,7 @@ def update_histogram(start_date, end_date, colleague, project, product):
         go.Bar(
             x=df["date"],
             y=df["quantity"],
-            text=df["colleague"],
+            text=df["quantity"],
             hovertemplate=[
                 f"{v} <br>{k}<extra></extra>"
                 for k, v in zip(df["date"], df["colleague"])

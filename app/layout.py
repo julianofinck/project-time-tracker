@@ -82,6 +82,7 @@ class Layout:
         return html.Div(
             [
                 html.P(title, 
+                    id=f"{id}-title",
                     className="dropdown-title"), 
                 dcc.Dropdown(
                     id=id,
