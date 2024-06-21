@@ -4,8 +4,8 @@ html{
     color: #e8e8e8;
     font-size: 1vw;
 }
-/* Individual Analysis */
-#individual-analysis{
+/* Main Analysis */
+#main-analysis{
     margin-bottom: 3vw;
 }
 .card{
@@ -138,12 +138,17 @@ html{
     border-right: 1vw;
     height: fit-content;
 }
+.tab {
+    height: fit-content;
+}
 .tabs {
     border-left: .5vw;
     border-right: .5vw;
     margin-right: .5vw;
     margin-left: .5vw;
     border-radius: 5px;
+    height: fit-content;
+    padding: 10px;
 }
 .tabs:hover {
     box-shadow: 2px 2px 20px rgba(17, 169, 27, 1); /* #575756ff */
@@ -158,4 +163,5 @@ html{
     border-color: #7dd100; /* Change border color on hover */
     color: #575756; /* Change text color on hover */
     outline: 2px solid #52ba0d; /* Add outline on hover */   
+    font-style: bold;
 }

@@ -1,6 +1,6 @@
 setTimeout(() => {
 
-    var visualizador_apontamentos = document.getElementById("individual-analysis");
+    var visualizador_apontamentos = document.getElementById("main-analysis");
 
     visualizador_apontamentos.addEventListener('click', changeProductActivityCODEX);
     

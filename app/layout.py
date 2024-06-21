@@ -10,10 +10,16 @@ class Layout:
     def generate(
         self,
     ):
+        tab_commons = {
+                "className": "tabs", 
+                "selected_className": "tabs--selected", 
+                "style": {"padding": "4px"}, 
+                "selected_style": {"padding": "4px"}
+                }
         layout = html.Div([
             html.Link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Open+Sans",),
 
-            # Individual Histogram
+            # Main Histogram
             html.Div([
                 html.Div([
                     dcc.Interval(id='interval-component', interval=1000, n_intervals=0),
@@ -45,7 +51,7 @@ class Layout:
                         id="date-picker",
                     ),],),
                 dcc.Graph(id="histogram"),
-                ], id="individual-analysis", 
+                ], id="main-analysis", 
                 className="card"),
 
             # Commitment Histogram
@@ -53,10 +59,10 @@ class Layout:
                 [
                     html.H1("Compromisso da Equipe", id="histogram-commitment-title"),
                     dcc.Tabs([
-                        dcc.Tab(label="Último Preenchimento", value="value1", className="tabs", selected_className="tabs--selected", style={"padding": "4px"}),
-                        dcc.Tab(label="1º Preenchimento", value="value2", className="tabs", selected_className="tabs--selected", style={"padding": "4px"}),
-                        dcc.Tab(label="FilledDays/Workdays", value="value3", className="tabs", selected_className="tabs--selected", style={"padding": "4px"}),
-                        dcc.Tab(label="Percentage", value="value4", className="tabs", selected_className="tabs--selected", style={"padding": "4px"}),
+                        dcc.Tab(label="Último Preenchimento", value="value1", **tab_commons),
+                        dcc.Tab(label="1º Preenchimento", value="value2", **tab_commons),
+                        dcc.Tab(label="FilledDays/Workdays", value="value3", **tab_commons),
+                        dcc.Tab(label="Percentage", value="value4", **tab_commons),
                     ],
                         id="tabs-container"),
                     dcc.Graph(id="histogram-commitment"),
