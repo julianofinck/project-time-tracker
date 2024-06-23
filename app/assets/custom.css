@@ -156,7 +156,7 @@ html{
     box-shadow: 2px 2px 20px rgba(17, 169, 27, 1);
     background-color: #e6e6e6;
     border-color: #7dd100;    color: #575756;
-    outline: 2px solid #52ba0d;   
+    outline: 2px solid #52ba0d;
 }
 .tabs--selected {
     box-shadow: 2px 2px 20px rgba(17, 169, 27, 1);
@@ -174,4 +174,15 @@ html{
     color: #000000;
     font-size: .8vw;
     padding-top: 10px;
+}
+.previous-next-container {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background-color: #e6e6e6;
+    width: fit-content;
+}
+
+.page-number.last-page {
+    background-color: #e6a23c;
 }

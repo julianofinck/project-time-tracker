@@ -37,8 +37,7 @@ class Extractor:
                 else:
                     del self.filename_colleagues[k]
                     
-                    
-    def _get_colleagues(self) -> list[str]:
+    def get_colleagues(self) -> list[str]:
         # Get the name of colleagues
         filename_colleagues = {
             xlsx: [
@@ -69,11 +68,12 @@ class Extractor:
         # If colleagues_list is invalid, use all colleagues
         self.filename_colleagues = filename_colleagues
         self._filter_desired()
-        
 
     def _get_df(self, file_name: str, colleague: str) -> pd.DataFrame:
         # Log colleague
         print(" >>", colleague)
+        if colleague == "Nicholas Becker":
+            pass
 
         # Get df
         columns = ["Data", "Projeto", "Produto", "Atividade", "Horas totais"]
@@ -85,48 +85,20 @@ class Extractor:
         # Set colleague name
         df["colleague"] = colleague
 
+        # Set index to search by controller
+        df.index = df.index + 2
+
         return df
-
-    def get_dfs(self) -> None:
-        """
-        Get colleague list and set the state
-        """
-        # Get colleagues
-        self._get_colleagues()
-
-        filename_colleagues = [(filename, colleague) for filename, colleagues in self.filename_colleagues.items() for colleague in colleagues]
-        total_iterations = len(filename_colleagues)
-
-        # Get DataFrames
-        ti = time.time()
-        data = [self._get_df(filename, colleague) for filename, colleague in filename_colleagues]
-
-        # Concatenate to single DataFrame
-        data = pd.concat(data).reset_index(drop=True)
-
-        # Validate and clean
-        data, invalid = self._clean(data)
-
-        # Store in class
-        self.data = data
-        self.invalid = invalid
-
-        # Print elapsed time
-        tf = time.time()
-        print("Elapsed time:", int(tf - ti), "s")
-
-        # Save state
-        extractor._save_state()
 
     def _validate(self, data: pd.DataFrame):
         """Separate valid and invalid subsets"""
         # Mask for a valid codex register
-        date_not_empty = ~data["date"].isna()
+        date_is_datetime_not_na = data["date"].apply(lambda x: isinstance(x, datetime.datetime)) & ~data["date"].isna()
         project_codex = data["project"].str.lower() == "codex"
         product_is_empty = data["product"].isna()
         activity_codex = data["activity"].fillna("dummy").str.contains("Codex")
         hours_not_null = data["hours"] != 0
-        valid_codex = date_not_empty & \
+        valid_codex = date_is_datetime_not_na & \
             project_codex & \
             product_is_empty & \
             activity_codex & \
@@ -134,7 +106,7 @@ class Extractor:
 
         # Mask for a valid project register
         # TODO: extend validation to check if product is allowed under given project
-        date_not_empty = ~data["date"].isna()
+        date_is_datetime_not_na = data["date"].apply(lambda x: isinstance(x, datetime.datetime)) & ~data["date"].isna()
         project_not_codex = data["project"].str.lower() != "codex"
         project_not_empty = ~data["project"].isna()
         project_is_string = data["project"].apply(lambda x: isinstance(x, str))
@@ -144,7 +116,7 @@ class Extractor:
         activity_is_string = data["activity"].apply(lambda x: isinstance(x, str))
         activity_not_codex = ~data["activity"].fillna("dummy").str.contains("Codex")
         hours_not_null = data["hours"] != 0
-        valid_project = date_not_empty & \
+        valid_project = date_is_datetime_not_na & \
             project_not_codex & \
             project_not_empty & \
             project_is_string & \
@@ -183,14 +155,7 @@ class Extractor:
 
         return data, invalid
 
-    def _define_name(self, row):
-        # Deprecated
-        if str(row.Produto) == "nan":
-            return f"{row.Projeto}\n{row.Atividade}"
-        else:
-            return f"{row.Projeto}\n{row.Produto}"
-
-    def _save_state(self):
+    def save_state(self):
         # Save the extractor
         if not os.path.exists("app/cache"):
             os.makedirs("app/cache")
@@ -198,7 +163,37 @@ class Extractor:
         with open("app/cache/state.pickle", "wb") as f:
             pickle.dump(extractor, f)
 
+    def get_dfs(self) -> None:
+        """
+        Get colleague list and set the state
+        """
+        # Get colleagues
+        self.get_colleagues()
 
+        filename_colleagues = [(filename, colleague) for filename, colleagues in self.filename_colleagues.items() for colleague in colleagues]
+
+        # Get DataFrames
+        ti = time.time()
+        data = [self._get_df(filename, colleague) for filename, colleague in filename_colleagues]
+
+        # Concatenate to single DataFrame
+        data = pd.concat(data).reset_index()
+
+        # Validate and clean
+        data, invalid = self._clean(data)
+
+        # Store in class
+        self.data = data
+        self.invalid = invalid
+
+        # Print elapsed time
+        tf = time.time()
+        print("Elapsed time:", int(tf - ti), "s")
+
+        # Save state
+        extractor.save_state()
+
+    
 
 # Load the extractor if it exists in cache
 if os.path.exists("app/cache/state.pickle"):
@@ -207,4 +202,4 @@ if os.path.exists("app/cache/state.pickle"):
 else:
     extractor = Extractor()
     extractor.get_dfs()
-    extractor._save_state()
+    extractor.save_state()
