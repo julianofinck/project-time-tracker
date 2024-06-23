@@ -1,36 +1,40 @@
+/* Main Style Definitions */
 html{
     background-color: #000000;
     font-family: "Open Sans";
     color: #e8e8e8;
     font-size: 1vw;
 }
-/* Main Analysis */
-#main-analysis{
-    margin-bottom: 3vw;
+/* Card */
+.card-title {
+    width: 100%;
+    text-align: center;
+    height: fit-content;
+    margin: 0px;
+    color: white;
 }
 .card{
     border-radius: 5px;
     margin: 1vw;
     border: 1vw;
     padding: 1vw;
-    box-shadow: 2px 2px 20px rgb(0, 0, 0); /* #575756ff */
+    box-shadow: 2px 2px 20px rgb(0, 0, 0);
     background-color: #21272A;
     border-color: #7dd100;
     color: #ffffff;
     outline: 2px solid #424242;
 }
 .card:hover{
-    box-shadow: 2px 2px 10px rgb(255, 255, 255); /* #575756ff */
+    box-shadow: 2px 2px 10px rgb(255, 255, 255);
     background-color: #21272A;
     border-color: #7dd100;
     outline: 2px solid #21711c;
 }
-#title{
-    width: 100%;
-    text-align: center;
-    height: fit-content;
-    margin: 0px;
-    color: white;
+
+
+/* Project-Product Histogram */
+#main-analysis{
+    margin-bottom: 3vw;
 }
 /* Period */
 #subtitle{
@@ -108,15 +112,15 @@ html{
     font-size: 1vw;
 }
 #update-button:hover {
-    box-shadow: 2px 2px 20px rgba(17, 169, 27, 1); /* #575756ff */
+    box-shadow: 2px 2px 20px rgba(17, 169, 27, 1);
     background-color: #e6e6e6;
-    border-color: #7dd100; /* Change border color on hover */
-    color: #575756; /* Change text color on hover */
-    outline: 2px solid #52ba0d; /* Add outline on hover */
+    border-color: #7dd100;
+    color: #575756;
+    outline: 2px solid #52ba0d;
 }
 
 
-/* Histogram Commitment */
+/* Team Commitment Histogram */
 #histogram-commitment-container {
     padding-right: 1vw;
     padding-left: 1vw;
@@ -127,9 +131,7 @@ html{
     padding-left: .5vw;
 
 }
-#histogram-commitment-title {
-    text-align: center;
-}
+
 
 /* Histogram Commitment Tabs*/
 #tabs-container {
@@ -151,17 +153,25 @@ html{
     padding: 10px;
 }
 .tabs:hover {
-    box-shadow: 2px 2px 20px rgba(17, 169, 27, 1); /* #575756ff */
+    box-shadow: 2px 2px 20px rgba(17, 169, 27, 1);
     background-color: #e6e6e6;
-    border-color: #7dd100; /* Change border color on hover */
-    color: #575756; /* Change text color on hover */
-    outline: 2px solid #52ba0d; /* Add outline on hover */   
+    border-color: #7dd100;    color: #575756;
+    outline: 2px solid #52ba0d;   
 }
 .tabs--selected {
-    box-shadow: 2px 2px 20px rgba(17, 169, 27, 1); /* #575756ff */
+    box-shadow: 2px 2px 20px rgba(17, 169, 27, 1);
     background-color: #e6e6e6;
-    border-color: #7dd100; /* Change border color on hover */
-    color: #575756; /* Change text color on hover */
-    outline: 2px solid #52ba0d; /* Add outline on hover */   
+    border-color: #7dd100;    color: #575756;
+    outline: 2px solid #52ba0d;   
     font-style: bold;
+}
+
+
+/* Controller Table */
+#controller-table {
+    width: 100%;
+    height: auto;
+    color: #000000;
+    font-size: .8vw;
+    padding-top: 10px;
 }

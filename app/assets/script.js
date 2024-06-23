@@ -8,7 +8,7 @@ setTimeout(() => {
 
     var selectArrowZone = document.getElementsByClassName("Select-arrow-zone");
 
-    selectArrowZone.addEventListener('click', changeProductActivityCODEX)
+    /*selectArrowZone.addEventListener('click', changeProductActivityCODEX)*/
 
 }, 1000);
 

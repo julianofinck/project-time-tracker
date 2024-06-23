@@ -33,10 +33,36 @@ pip install -r requirements.txt
 The application runs with a `python run.py`
 
 ## To Do:
+- Discuss validation rules:
+```shell
+# Valid CODEX
+date_not_empty
+project_codex # case isentitive
+product_is_empty
+activity_codex
+hours_not_null
+
+# Valid Project 
+date_not_empty
+project_not_codex
+project_not_empty
+project_is_string
+product_not_empty
+product_is_string
+activity_not_empty
+activity_is_string
+activity_not_codex
+hours_not_null
+
+# Duvidas:
+O colaborador nas ferias deve marcar CODEX, Ferias e preencher as horas? (Caso Diego)
+
+No caso do Growth, esse nao necessita de produto tambem? Interessa horas dedicadas para o Growth ou posso remover do visualizador?
+```
+
 - 2nd Histogram - 4 options:
   - Last day filled in (OK!)
   - 1st day
   - FilledDays/Workdays 
   - % of days filled in
 
-- Get participants in a specific product and in a project
