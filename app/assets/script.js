@@ -4,7 +4,7 @@ setTimeout(() => {
 
     visualizador_apontamentos.addEventListener('click', changeProductActivityCODEX);
     
-    var projectDropdown = document.getElementById("project-dropdown");
+    var projectDropdown = document.getElementById("project-selector");
 
     var selectArrowZone = document.getElementsByClassName("Select-arrow-zone");
 
@@ -14,7 +14,7 @@ setTimeout(() => {
 
 
 function changeProductActivityCODEX() {
-    var dropdown = document.getElementById("project-dropdown");
+    var dropdown = document.getElementById("project-selector");
     // Check if the element exists
     if (dropdown) {
         // Find the element that contains the value "CODEX"
@@ -23,7 +23,7 @@ function changeProductActivityCODEX() {
         if (valueElement) {
             // Get the text content of the value element
             var value = valueElement.textContent;
-            var product_title = document.getElementById("product-dropdown-title");
+            var product_title = document.getElementById("product-selector-title");
             if (value === "CODEX") {
                 product_title.innerText = "Atividade";
             } else {
@@ -39,9 +39,9 @@ function changeProductActivityCODEX() {
     }
   }
 
-  // Function to get the current value from the dropdown
+// Function to get the current value from the dropdown
 function getDropdownValue() {
-    var dropdown = document.getElementById("project-dropdown");
+    var dropdown = document.getElementById("project-selector");
 
     if (dropdown) {
         var valueElement = dropdown.querySelector(".Select-value-label");

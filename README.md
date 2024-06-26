@@ -35,11 +35,10 @@ The application runs with a `python run.py`
 ## To Do:
 - Discuss validation rules:
 ```shell
-# Valid CODEX
+# Valid CODEX/GROWTH
 date_not_empty
-project_codex # case isentitive
+project_codex_growth # case isentitive
 product_is_empty
-activity_codex
 hours_not_null
 
 # Valid Project 
@@ -53,11 +52,6 @@ activity_not_empty
 activity_is_string
 activity_not_codex
 hours_not_null
-
-# Duvidas:
-O colaborador nas ferias deve marcar CODEX, Ferias e preencher as horas? (Caso Diego)
-
-No caso do Growth, esse nao necessita de produto tambem? Interessa horas dedicadas para o Growth ou posso remover do visualizador?
 ```
 
 - 2nd Histogram - 4 options:

@@ -1,0 +1,117 @@
+/* SELECTORS */
+#selectors-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 0px;
+    border: 0px;
+
+    box-shadow: 2px 2px 20px rgb(0, 0, 0);
+    background-color: #000000;
+    border-color: #7dd100;
+    color: #ffffff;
+    outline: 2px solid #424242;
+
+    height: fit-content;
+    padding-bottom: 1vw;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+
+    align-items: center;
+
+    z-index: 1000; /* Make sure this value is higher than other elements */
+
+    /* no wrap */
+    white-space: nowrap;
+}
+.selector{
+    height: fit-content;
+    padding-left: 1vw;
+    padding-right: 1vw;
+    align-items: center;
+}
+.selector:hover{
+    height: fit-content;
+    padding-left: 1vw;
+    padding-right: 1vw;
+    align-items: center;
+    color: var(--title-hover-color);
+    font-style: bold;
+    font-weight: bolder;
+}
+.selector-title{
+    text-align: center;
+    margin: 0px;
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+}
+.selector-content{
+    color: #272727;
+}
+.date-picker-container{
+    padding-left: 1vw;
+    padding-right: 1vw;
+    font-size: 1vw;
+}
+.DateRangePicker {
+    width: auto;
+}
+.DateRangePickerInput {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    height: fit-content;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    align-items: center;
+}
+.DateInput{
+    width: auto;
+    padding: 0px;
+    font-size: 1vw;
+    text-align: center;
+}
+.DateRangePickerInput_arrow {
+    width: fit-content;
+    padding: 0px;
+    font-size: 1vw;
+    text-align: center;
+}
+.DateInput_input{
+    width: fit-content;
+    padding: 0px;
+    font-size: 1vw;
+    text-align: center;
+}
+
+/* UPDATE BUTTON */
+#update-area{
+    width: fit-content;
+    height: fit-content;
+    position: absolute;
+    right: 4vw;
+    top: 6vw;
+    display: flex;
+    flex-direction: column;
+}
+#progress-text{
+    text-align: center;
+    font-size: 1vw;
+}
+#update-button{
+    width: 100%;
+    height: 100%;
+    padding-left: 1vw;
+    padding-right: 1vw;
+    font-size: 1vw;
+}
+#update-button:hover {
+    box-shadow: 2px 2px 20px rgba(17, 169, 27, 1);
+    background-color: #e6e6e6;
+    border-color: #7dd100;
+    color: #575756;
+    outline: 2px solid #52ba0d;
+}

@@ -12,3 +12,6 @@ company_excel_mock/*
 
 #
 .env
+
+# Ignore mocks
+*_mock*

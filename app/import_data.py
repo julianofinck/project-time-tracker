@@ -1,17 +1,16 @@
-import pickle
-import os
-import itertools
-import time
-import json
 import datetime
+import itertools
+import json
+import os
+import pickle
+import time
 
 import numpy as np
 import pandas as pd
 
 
-class Extractor:
+class DataImporter:
     def __init__(self):
-        # Define paths to XLSX files
         paths = {
             "AF": os.getenv("XLSX_AF"),
             "GK": os.getenv("XLSX_GK"),
@@ -19,12 +18,14 @@ class Extractor:
             "RZ": os.getenv("XLSX_RZ"),
         }
         apontamentos_dir = os.getenv("APONTAMENTOS_DIR")
-        self.xlsx = {k: f"{apontamentos_dir}{v}" for k, v in paths.items()}
-
+        self.xlsx = {
+            initials: os.path.join(apontamentos_dir, xlsx_filepath)
+            for initials, xlsx_filepath in paths.items()
+        }
         self.colleague_list = None
         self.filename_colleagues = None
         self.data = None
-        self.product_project_list = None
+        self.progress = 0
 
     def _filter_desired(self):
         if self.colleague_list is not None:
@@ -36,9 +37,8 @@ class Extractor:
                             self.filename_colleagues[k].remove(v)
                 else:
                     del self.filename_colleagues[k]
-                    
+
     def get_colleagues(self) -> list[str]:
-        # Get the name of colleagues
         filename_colleagues = {
             xlsx: [
                 sheet
@@ -48,24 +48,6 @@ class Extractor:
             for xlsx in self.xlsx.values()
         }
 
-        # If config is defined, use it
-        try:
-            with open('config.json') as f:
-                config = json.load(f)
-                colleague_list_json = config.get('colleague_list', None)
-                if not isinstance(colleague_list_json, list):
-                    # TODO: Add log
-                    print(TypeError("colleague_list must be a list"))
-                elif None in colleague_list_json:
-                    # TODO: Add log
-                    pass
-                else:
-                    self.colleague_list = colleague_list_json
-        except FileNotFoundError:
-            # TODO: log "no config file"
-            pass
-
-        # If colleagues_list is invalid, use all colleagues
         self.filename_colleagues = filename_colleagues
         self._filter_desired()
 
@@ -93,20 +75,26 @@ class Extractor:
     def _validate(self, data: pd.DataFrame):
         """Separate valid and invalid subsets"""
         # Mask for a valid codex register
-        date_is_datetime_not_na = data["date"].apply(lambda x: isinstance(x, datetime.datetime)) & ~data["date"].isna()
-        project_codex = data["project"].str.lower() == "codex"
+        date_is_datetime_not_na = (
+            data["date"].apply(lambda x: isinstance(x, datetime.datetime))
+            & ~data["date"].isna()
+        )
+        project_codex_growth = data["project"].str.lower().isin(["codex", "growth"])
         product_is_empty = data["product"].isna()
-        activity_codex = data["activity"].fillna("dummy").str.contains("Codex")
         hours_not_null = data["hours"] != 0
-        valid_codex = date_is_datetime_not_na & \
-            project_codex & \
-            product_is_empty & \
-            activity_codex & \
-            hours_not_null
+        valid_codex_growth = (
+            date_is_datetime_not_na
+            & project_codex_growth
+            & product_is_empty
+            & hours_not_null
+        )
 
         # Mask for a valid project register
         # TODO: extend validation to check if product is allowed under given project
-        date_is_datetime_not_na = data["date"].apply(lambda x: isinstance(x, datetime.datetime)) & ~data["date"].isna()
+        date_is_datetime_not_na = (
+            data["date"].apply(lambda x: isinstance(x, datetime.datetime))
+            & ~data["date"].isna()
+        )
         project_not_codex = data["project"].str.lower() != "codex"
         project_not_empty = ~data["project"].isna()
         project_is_string = data["project"].apply(lambda x: isinstance(x, str))
@@ -115,53 +103,66 @@ class Extractor:
         activity_not_empty = ~data["activity"].isna()
         activity_is_string = data["activity"].apply(lambda x: isinstance(x, str))
         activity_not_codex = ~data["activity"].fillna("dummy").str.contains("Codex")
+        activity_not_growth = ~data["activity"].fillna("dummy").str.contains("Growth")
         hours_not_null = data["hours"] != 0
-        valid_project = date_is_datetime_not_na & \
-            project_not_codex & \
-            project_not_empty & \
-            project_is_string & \
-            product_not_empty & \
-            product_is_string & \
-            activity_not_empty & \
-            activity_is_string & \
-            activity_not_codex & \
-            hours_not_null
-        
-        valid_mask = valid_codex | valid_project
+        valid_project = (
+            date_is_datetime_not_na
+            & project_not_codex
+            & project_not_empty
+            & project_is_string
+            & product_not_empty
+            & product_is_string
+            & activity_not_empty
+            & activity_is_string
+            & activity_not_codex
+            & activity_not_growth
+            & hours_not_null
+        )
+
+        valid_mask = valid_codex_growth | valid_project
         valid = data[valid_mask].copy().reset_index(drop=True)
         invalid = data[~valid_mask].copy().reset_index(drop=True)
         return valid, invalid
 
     def _clean(self, data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
         # Drop registers when all is NA (mind you, empty hours are 0 hours)
-        mask = (data["date"].isna()) & \
-            (data["product"].isna()) & \
-            (data["project"].isna()) & \
-            (data["hours"] == datetime.time(0, 0))
+        mask = (
+            (data["date"].isna())
+            & (data["product"].isna())
+            & (data["project"].isna())
+            & (data["hours"] == datetime.time(0, 0))
+        )
         data = data[~mask].reset_index(drop=True)
+
+        # CODEX "Reuniao interna" does not matter wherefrom
+        data["activity"] = data["activity"].apply(
+            lambda x: "Reunião interna" if "Reunião interna" in str(x) else x
+        )
 
         # Convert to hour
         # TODO: what if the element is a string?
         data.loc[:, "hours"] = data["hours"].apply(
-            lambda time: round(time.hour + time.minute / 60 + time.second / 3600, 2)
-            if pd.notnull(time) else np.nan
+            lambda time: (
+                round(time.hour + time.minute / 60 + time.second / 3600, 2)
+                if pd.notnull(time)
+                else np.nan
+            )
         )
 
         # Validate business rules
         data, invalid = self._validate(data)
-        
+
         # Remove time from date
         data["date"] = pd.to_datetime(data["date"]).apply(lambda x: x.date())
 
         return data, invalid
 
     def save_state(self):
-        # Save the extractor
-        if not os.path.exists("app/cache"):
-            os.makedirs("app/cache")
+        # Create
+        os.makedirs("app/cache", exist_ok=True)
 
         with open("app/cache/state.pickle", "wb") as f:
-            pickle.dump(extractor, f)
+            pickle.dump(self, f)
 
     def get_dfs(self) -> None:
         """
@@ -170,14 +171,26 @@ class Extractor:
         # Get colleagues
         self.get_colleagues()
 
-        filename_colleagues = [(filename, colleague) for filename, colleagues in self.filename_colleagues.items() for colleague in colleagues]
+        filename_colleagues = [
+            (filename, colleague)
+            for filename, colleagues in self.filename_colleagues.items()
+            for colleague in colleagues
+        ]
+        total_iterations = len(filename_colleagues)
 
         # Get DataFrames
         ti = time.time()
-        data = [self._get_df(filename, colleague) for filename, colleague in filename_colleagues]
+        # data = [self._get_df(filename, colleague) for filename, colleague in filename_colleagues]
+        data = list()
+        self.progress = 0
+        for i, (filename, colleague) in enumerate(filename_colleagues):
+            df = self._get_df(filename, colleague)
+            data.append(df.dropna(axis=1, how="all"))
+            self.progress = (i + 1) / total_iterations * 100
 
         # Concatenate to single DataFrame
         data = pd.concat(data).reset_index()
+        # The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the old behavior, exclude the relevant entries before the concat operation.
 
         # Validate and clean
         data, invalid = self._clean(data)
@@ -191,15 +204,4 @@ class Extractor:
         print("Elapsed time:", int(tf - ti), "s")
 
         # Save state
-        extractor.save_state()
-
-    
-
-# Load the extractor if it exists in cache
-if os.path.exists("app/cache/state.pickle"):
-    with open("app/cache/state.pickle", "rb") as f:
-        extractor = pickle.load(f)
-else:
-    extractor = Extractor()
-    extractor.get_dfs()
-    extractor.save_state()
+        self.save_state()

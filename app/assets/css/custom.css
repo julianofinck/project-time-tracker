@@ -1,0 +1,109 @@
+/* Main Style Definitions */
+html{
+    background-color: var(--html-background-color);
+    font-family: var(--font);
+    color: #e8e8e8;
+    font-size: 1vw;
+    display: relative;
+}
+
+
+
+/* WIDGETS CONTAINER */
+#widgets-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+#header-spacer {
+    height: 4vw;
+}
+/* Card */
+.card-title {
+    width: 100%;
+    text-align: center;
+    height: fit-content;
+    margin: 0px;
+    padding: 1vw;
+}
+.card{
+    border-radius: 5px;
+    margin: 1vw;
+    border: 1vw;
+    padding-left: 1vw;
+    padding-right: 1vw;
+    padding-bottom: 1vw;
+    box-shadow: 2px 2px 20px rgb(0, 0, 0);
+    background-color: var(--card-background-color);
+    border-color: #7dd100;
+    color: var(--card-color);
+    outline: 2px solid #424242;
+}
+.card:hover{
+    border-color: #7dd100;
+    outline: 2px groove #bebebe;
+    color: var(--title-hover-color);
+}
+
+/* Team Commitment Histogram */
+#histogram-commitment-container {
+    padding-right: 1vw;
+    padding-left: 1vw;
+}
+#histogram-commitment {
+    margin-top: 1vw;
+    padding-right: .5vw;
+    padding-left: .5vw;
+}
+
+/* Controller Table */
+#controller-table {
+    width: 100%;
+    height: auto;
+    color: #000000;
+    font-size: .8vw;
+    padding-top: 10px;
+}
+.previous-next-container {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background-color: #e6e6e6;
+    width: fit-content;
+}
+.page-number.last-page {
+    background-color: #e6a23c;
+}
+
+/* Histogram Commitment Tabs*/
+#tabs-container {
+    color: black;
+    border-left: 1vw;
+    border-right: 1vw;
+    height: fit-content;
+}
+.tab {
+    height: fit-content;
+}
+.tabs {
+    border-left: .5vw;
+    border-right: .5vw;
+    margin-right: .5vw;
+    margin-left: .5vw;
+    border-radius: 5px;
+    height: fit-content;
+    padding: 10px;
+}
+.tabs:hover {
+    box-shadow: 2px 2px 20px rgba(17, 169, 27, 1);
+    background-color: #e6e6e6;
+    border-color: #7dd100;    color: #575756;
+    outline: 2px solid #52ba0d;
+}
+.tabs--selected {
+    box-shadow: 2px 2px 20px rgba(17, 169, 27, 1);
+    background-color: #e6e6e6;
+    border-color: #7dd100;    color: #575756;
+    outline: 2px solid #52ba0d;   
+    font-style: bold;
+}
