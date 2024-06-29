@@ -10,6 +10,9 @@ from .layout import Layout
 if os.path.exists("app/cache/state.pickle"):
     with open("app/cache/state.pickle", "rb") as f:
         data_importer = pickle.load(f)
+
+        # For integration purposes
+        data_importer.data.to_pickle("app/cache/data.pickle")
 else:
     data_importer = DataImporter()
     data_importer.get_dfs()

@@ -164,6 +164,9 @@ class DataImporter:
         with open("app/cache/state.pickle", "wb") as f:
             pickle.dump(self, f)
 
+            # For integration purposes
+            self.data.to_pickle("app/cache/data.pickle")
+
     def get_dfs(self) -> None:
         """
         Get colleague list and set the state
