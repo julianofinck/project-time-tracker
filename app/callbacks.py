@@ -8,6 +8,8 @@ from dash import Input, Output, State
 from . import app
 from .__init__ import data_importer
 from .callback_update import *
+from .boxplot import boxplot
+from .reported_workhours import reported_workhours
 
 
 ## Header Dropdown Lists #######################################################################
@@ -147,7 +149,7 @@ def update_product_options(colleague, project, start_date, end_date):
         Input("product-selector", "value"),
     ],
 )
-def update_histogram(start_date, end_date, colleague, project, product):
+def update_hist_workhours(start_date, end_date, colleague, project, product):
     # TODO: Case in which data is empty
 
     # Filter date initial mask
@@ -258,6 +260,50 @@ def update_date_picker(colleague):
         )
 
 
+# Controller - Invalid Registers
+@app.callback(
+    Output("controller-table", "data"),
+    Output("controller-table", "columns"),
+    [
+        Input("date-picker", "start_date"),
+        Input("date-picker", "end_date"),
+        Input("colleague-selector", "value"),
+        Input("project-selector", "value"),
+        Input("product-selector", "value"),
+    ],
+)
+def update_hist_invalid_registers(start_date, end_date, colleague, project, product):
+    invalid = data_importer.invalid.copy()
+
+    # Filter by colleague
+    if colleague in invalid["colleague"].unique():
+        invalid = invalid[invalid["colleague"] == colleague]
+
+    # Adjust column order for controller
+    invalid = invalid[
+        ["colleague", "index", "date", "hours", "project", "product", "activity"]
+    ]
+
+    # Adjust date
+    invalid["date"] = invalid["date"].apply(
+        lambda x: x.date() if isinstance(x, datetime.datetime) else x
+    )
+    invalid["date"].apply(lambda x: str(x) if pd.isna(x) else str(x))
+
+    # Adjust columns to portuguese
+    invalid.columns = [
+        "Colaborador",
+        "Linha",
+        "Data",
+        "Horas",
+        "Projeto",
+        "Produto",
+        "Atividade",
+    ]
+    columns = [{"name": i, "id": i} for i in invalid.columns]
+    return invalid.to_dict("records"), columns
+
+
 # Commitment-Histogram
 @app.callback(
     Output("histogram-commitment", "figure"),
@@ -267,11 +313,20 @@ def update_date_picker(colleague):
         Input("colleague-selector", "value"),
         Input("project-selector", "value"),
         Input("product-selector", "value"),
+        Input("tabs-container", "value"),
     ],
 )
-def update_histogram(start_date, end_date, colleague, project, product):
-
+def update_hist_commitment(start_date, end_date, colleague, project, product, tab_option):
     data = data_importer.data
+
+    # Boxplot
+    if tab_option=="value2":
+        return boxplot(data)
+    
+    # FilledDays/Workdays
+    if tab_option=="value3":
+        return reported_workhours(data)
+        pass
 
     # Get date of last filled day and groupby day
     df = data[["colleague", "date"]].groupby(by="colleague", as_index=False).max()
@@ -364,49 +419,3 @@ def update_histogram(start_date, end_date, colleague, project, product):
     figure = go.Figure(data=hist_data, layout=layout)
 
     return figure
-
-
-# Controller - Invalid Registers
-@app.callback(
-    Output("controller-table", "data"),
-    Output("controller-table", "columns"),
-    [
-        Input("date-picker", "start_date"),
-        Input("date-picker", "end_date"),
-        Input("colleague-selector", "value"),
-        Input("project-selector", "value"),
-        Input("product-selector", "value"),
-    ],
-)
-def update_controller(start_date, end_date, colleague, project, product):
-    invalid = data_importer.invalid.copy()
-
-    # Filter by colleague
-    if colleague in invalid["colleague"].unique():
-        invalid = invalid[invalid["colleague"] == colleague]
-
-    # Adjust column order for controller
-    invalid = invalid[
-        ["colleague", "index", "date", "hours", "project", "product", "activity"]
-    ]
-
-    # Adjust date
-    invalid["date"] = invalid["date"].apply(
-        lambda x: x.date() if isinstance(x, datetime.datetime) else x
-    )
-    invalid["date"].apply(lambda x: str(x) if pd.isna(x) else str(x))
-
-    # Adjust columns to portuguese
-    invalid.columns = [
-        "Colaborador",
-        "Linha",
-        "Data",
-        "Horas",
-        "Projeto",
-        "Produto",
-        "Atividade",
-    ]
-    columns = [{"name": i, "id": i} for i in invalid.columns]
-    return invalid.to_dict("records"), columns
-
-

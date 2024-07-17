@@ -161,20 +161,20 @@ class Layout:
                                             **tab_commons,
                                         ),
                                         dcc.Tab(
-                                            label="1º Preenchimento",
+                                            label="Boxplot",
                                             value="value2",
                                             **tab_commons,
                                         ),
                                         dcc.Tab(
-                                            label="FilledDays/Workdays",
+                                            label="Trabalhado/Transcorrido",
                                             value="value3",
                                             **tab_commons,
                                         ),
-                                        dcc.Tab(
-                                            label="Percentage",
-                                            value="value4",
-                                            **tab_commons,
-                                        ),
+                                        ##dcc.Tab(
+                                        ##    label="Percentage",
+                                        ##    value="value4",
+                                        ##    **tab_commons,
+                                        ##),
                                     ],
                                     id="tabs-container",
                                 ),

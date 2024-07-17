@@ -1,4 +1,4 @@
-/* SELECTORS */
+/* HEADER SELECTORS */
 #selectors-container {
     position: fixed;
     top: 0;
@@ -47,6 +47,10 @@
     margin: 0px;
     margin-block-start: 0px;
     margin-block-end: 0px;
+}
+.dash-dropdown {
+    font-style: normal;
+    font-weight: normal;
 }
 .selector-content{
     color: #272727;
