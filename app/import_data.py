@@ -44,31 +44,73 @@ class DataImporter:
                 sheet
                 for sheet in pd.ExcelFile(xlsx).sheet_names
                 if sheet not in ["KEYS", "INÍCIO", "PowerQuery"]
+                # TODO: "ignore Planilha, Sheet or Tabelle"
             ]
             for xlsx in self.xlsx.values()
         }
 
         self.filename_colleagues = filename_colleagues
+        self.colleague_list = [colleague for colleagues in self.filename_colleagues.values() for colleague in colleagues]
         self._filter_desired()
 
     def _get_df(self, file_name: str, colleague: str) -> pd.DataFrame:
         # Log colleague
         print(" >>", colleague)
-        if colleague == "Nicholas Becker":
-            pass
 
-        # Get df
-        columns = ["Data", "Projeto", "Produto", "Atividade", "Horas totais"]
+        # Read Excel sheetname of the specific Colleague
+        first_columns = ["Data", "Projeto", "Produto", "Atividade"]
+        columns = first_columns + [
+            'Horário 1 - Inicio', 'Horário 1 - fim',
+            'Horário 2 - Inicio', 'Horário 2 - fim',
+            'Horário 3 - Inicio', 'Horário 3 - fim',
+            'Horário 4 - Inicio', 'Horário 4 - fim',
+            ]
         df = pd.read_excel(file_name, colleague, usecols=columns)
 
+        # Keep row number
+        df["index"] = df.index  + 2
+        
+        # Transform it into block hours (explode 1:N relationships)
+        lista = []
+        for i in range(1, 5):
+            workhour_block = df[first_columns + [f'Horário {i} - Inicio', f'Horário {i} - fim', 'index']].copy()
+            workhour_block.columns = first_columns + ['Horário - Inicio', 'Horário - fim', 'index']
+            lista.append(workhour_block)
+        df = pd.concat(lista, axis=0, ignore_index=True)
+
         # Columns in lowercase
-        df.columns = ["date", "project", "product", "activity", "hours"]
+        df.columns = ["date", "project", "product", "activity", "start_time", "end_time", "index"]
 
-        # Set colleague name
+        # Adjust decimal to time
+        for column in ["start_time", "end_time"]:
+            series = df[column].apply(lambda x: decimal_to_time(x) if isinstance(x, (int, float)) else x)
+            df.loc[:, column] = series.apply(lambda x: x.time() if isinstance(x, (datetime.datetime)) else x)
+
+        # Save for later
+        mask_start_time = (~df["start_time"].isna()) & (df["start_time"].apply(lambda x: not isinstance(x, datetime.time)))
+        mask_final_time = (~df["end_time"].isna()) & (df["end_time"].apply(lambda x: not isinstance(x, datetime.time)))
+        mask = mask_start_time | mask_final_time
+        df_wrong = df[mask].copy()
+        df_wrong["hours"] = None
+        df_wrong["hours"] = df_wrong["hours"].astype("float64")
+
+        # Drop NA
+        df = df[~mask].dropna(subset=["start_time", "end_time"])
+
+        # Create "hours"
+        hours = pd.to_datetime(df["end_time"], format="%H:%M:%S") - pd.to_datetime(df["start_time"], format="%H:%M:%S")
+        hours = hours.dt.total_seconds() / 3600
+        df["hours"] = hours.round(2)
+
+        # Recover wrong registers
+        df = pd.concat([df, df_wrong])
+
+        # Create "colleague"
         df["colleague"] = colleague
-
+       
         # Set index to search by controller
-        df.index = df.index + 2
+        df = df.sort_values(by=["date", "start_time"])
+        df = df.reset_index(drop=True)
 
         return df
 
@@ -139,16 +181,6 @@ class DataImporter:
             lambda x: "Reunião interna" if "Reunião interna" in str(x) else x
         )
 
-        # Convert to hour
-        # TODO: what if the element is a string?
-        data.loc[:, "hours"] = data["hours"].apply(
-            lambda time: (
-                round(time.hour + time.minute / 60 + time.second / 3600, 2)
-                if pd.notnull(time)
-                else np.nan
-            )
-        )
-
         # Validate business rules
         data, invalid = self._validate(data)
 
@@ -165,7 +197,7 @@ class DataImporter:
             pickle.dump(self, f)
 
             # For integration purposes
-            self.data.to_pickle("app/cache/data.pickle")
+            self.data.to_pickle("app/cache/valid_data.pickle")
 
     def get_dfs(self) -> None:
         """
@@ -183,7 +215,6 @@ class DataImporter:
 
         # Get DataFrames
         ti = time.time()
-        # data = [self._get_df(filename, colleague) for filename, colleague in filename_colleagues]
         data = list()
         self.progress = 0
         for i, (filename, colleague) in enumerate(filename_colleagues):
@@ -192,8 +223,7 @@ class DataImporter:
             self.progress = (i + 1) / total_iterations * 100
 
         # Concatenate to single DataFrame
-        data = pd.concat(data).reset_index()
-        # The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the old behavior, exclude the relevant entries before the concat operation.
+        data = pd.concat(data)
 
         # Validate and clean
         data, invalid = self._clean(data)
@@ -208,3 +238,14 @@ class DataImporter:
 
         # Save state
         self.save_state()
+
+
+def decimal_to_time(decimal):
+    if pd.isna(decimal):
+        return None
+    try:
+        decimal = float(decimal)
+        total_seconds = int(decimal * 24 * 3600)
+        return (datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=total_seconds)).time()
+    except ValueError:
+        return None

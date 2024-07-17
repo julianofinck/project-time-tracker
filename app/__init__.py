@@ -6,6 +6,7 @@ from dash import Dash
 from .import_data import DataImporter
 from .layout import Layout
 
+
 # Load the extractor if it exists in cache
 if os.path.exists("app/cache/state.pickle"):
     with open("app/cache/state.pickle", "rb") as f:

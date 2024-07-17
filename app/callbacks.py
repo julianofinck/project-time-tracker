@@ -10,6 +10,131 @@ from .__init__ import data_importer
 from .callback_update import *
 
 
+## Header Dropdown Lists #######################################################################
+# Colleague
+@app.callback(
+    Output("colleague-selector", "options"),
+    [
+        Input("colleague-selector", "value"),
+        Input("project-selector", "value"),
+        Input("product-selector", "value"),
+        Input("date-picker", "start_date"),
+        Input("date-picker", "end_date"),
+    ],
+)
+def update_colleague_options(colleague, project, product, start_date, end_date):
+    # Filter date initial mask
+    data = data_importer.data
+    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
+    end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
+    mask = (data["date"] >= start_date) & (data["date"] <= end_date)
+
+    if project is not None:
+        mask = mask & (data["project"] == project)
+    if product is not None:
+        mask = mask & (data["product"] == product)
+
+    options = [{"label": i, "value": i} for i in data[mask]["colleague"].unique()]
+    options.sort(key=lambda x: x["label"])
+    return options
+
+
+# Project
+@app.callback(
+    Output("project-selector", "options"),
+    [
+        Input("colleague-selector", "value"),
+        Input("date-picker", "start_date"),
+        Input("date-picker", "end_date"),
+    ],
+)
+def update_project_options(colleague, start_date, end_date):
+    # Filter date initial mask
+    data = data_importer.data
+    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
+    end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
+    mask = (data["date"] >= start_date) & (data["date"] <= end_date)
+
+    if colleague is None:
+        projects = data[mask]["project"].dropna().unique()
+    else:
+        projects = (
+            data[mask & (data["colleague"] == colleague)].project.dropna().unique()
+        )
+
+    projects.sort()
+    return [{"label": project, "value": project} for project in projects]
+
+
+# Product
+@app.callback(
+    Output("product-selector", "options"),
+    Output("product-selector-title", "children"),
+    [
+        Input("colleague-selector", "value"),
+        Input("project-selector", "value"),
+        Input("date-picker", "start_date"),
+        Input("date-picker", "end_date"),
+    ],
+)
+def update_product_options(colleague, project, start_date, end_date):
+    # Filter date initial mask
+    data = data_importer.data
+    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
+    end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
+    mask = (data["date"] >= start_date) & (data["date"] <= end_date)
+
+    if colleague is None and project is None:
+        products = data[mask]["product"].dropna().unique()
+
+    elif colleague is None and project is not None:
+        if project == "CODEX":
+            # todo: add javascript that changes label "Produto" to "Atividade" if CODEX is picked
+            products = (
+                data[mask & (data["project"] == project)]["activity"].dropna().unique()
+            )
+        else:
+            products = (
+                data[mask & (data["project"] == project)]["product"].dropna().unique()
+            )
+
+    elif colleague is not None and project is None:
+        products = (
+            data[mask & (data["colleague"] == colleague)]["product"].dropna().unique()
+        )
+
+    elif colleague is not None and project is not None:
+        if project == "CODEX":
+            # todo: add javascript that changes label "Produto" to "Atividade" if CODEX is picked
+            products = (
+                data[
+                    mask
+                    & (data["colleague"] == colleague)
+                    & (data["project"] == project)
+                ]["activity"]
+                .dropna()
+                .unique()
+            )
+        else:
+            products = (
+                data[
+                    mask
+                    & (data["colleague"] == colleague)
+                    & (data["project"] == project)
+                ]["product"]
+                .dropna()
+                .unique()
+            )
+
+    products.sort()
+    options = [{"label": product, "value": product} for product in products]
+
+    # CODEX has no produtos.
+    if project == "CODEX":
+        return options, "Atividade"
+    else:
+        return options, "Produto"
+
 #########################################################################################
 # Main Histogram
 @app.callback(
@@ -151,6 +276,9 @@ def update_histogram(start_date, end_date, colleague, project, product):
     # Get date of last filled day and groupby day
     df = data[["colleague", "date"]].groupby(by="colleague", as_index=False).max()
 
+    # Get no valid register
+    no_valid_register = [_coll for _coll in data_importer.colleague_list if _coll not in list(df.colleague)]
+
     # Remove former employees
     former_employees = os.getenv("FORMER_EMPLOYEES")
     former_employees = [
@@ -164,28 +292,39 @@ def update_histogram(start_date, end_date, colleague, project, product):
     # Count quantity
     df["quantity"] = df["colleague"].apply(lambda x: x.count(",") + 1)
 
+    # Add colleague who never filled the table properly as well
+    if no_valid_register:
+        no_valid_register.sort()
+        min_date = df["date"].min() - datetime.timedelta(1)
+        texto = "Sem registro válido:<br>" + ", ".join(no_valid_register)
+        df.iloc[-1] = [min_date, texto, len(no_valid_register)]
+
     # Adjust hasty employees
     today = datetime.datetime.now().date()
     tomorrow = today + datetime.timedelta(1)
     hasty_mask = df["date"] > today
     hasty_df = df[hasty_mask]
-    quantity = hasty_df["quantity"].sum()
+    if not hasty_df.empty:
+        quantity = hasty_df["quantity"].sum()
+        texto = [
+            f"{row['colleague']} ({row['date'].strftime('%Y-%m-%d')})"
+            for _, row in hasty_df.iterrows()
+        ]
+        texto = "Colegas do Futuro:<br>" + "<br>".join(texto)
 
-    texto = [
-        f"{row['colleague']} ({row['date'].strftime('%Y-%m-%d')})"
-        for _, row in hasty_df.iterrows()
-    ]
-    texto = "Colegas do Futuro:<br>" + "<br>".join(texto)
+        # Remove hasty
+        df = df[~hasty_mask].reset_index(drop=True)
 
-    # Eliminate future dates
-    # TODO:
+        # Add new register for visualizaiton
+        df.loc[len(df)] = [tomorrow, texto, quantity]
 
-    # Add new register for visualizaiton
-    df.loc[len(df)] = [tomorrow, texto, quantity]
+        # Count
+        df.groupby("date").size().reset_index(name="quantity")
+        
+    # Order dataframe by date
+    df = df.sort_values(by="date").reset_index(drop=True)
 
-    # Count
-    df.groupby("date").size().reset_index(name="quantity")
-
+    # Graph settings
     start_date = df["date"].min() - datetime.timedelta(1)
     end_date = tomorrow + datetime.timedelta(1)
 
@@ -198,6 +337,13 @@ def update_histogram(start_date, end_date, colleague, project, product):
     )
     # TODO: Change the hardcoded "7" for something more responsive
 
+    # Get colors
+    colors = ["#198238"] * len(df)
+    if no_valid_register:
+        colors[0] = "red"
+    if not hasty_df.empty:
+        colors[-1] = "#A47300"
+
     # Create histogram
     hist_data = [
         go.Bar(
@@ -209,7 +355,7 @@ def update_histogram(start_date, end_date, colleague, project, product):
                 for k, v in zip(df["date"], df["colleague"])
             ],  # Full x-values in hovertemplate
             marker=dict(
-                color="#198238",  # Color hex code
+                color=colors,  # Color hex code
             ),
         )
     ]
@@ -264,127 +410,3 @@ def update_controller(start_date, end_date, colleague, project, product):
     return invalid.to_dict("records"), columns
 
 
-## Dropdown Lists #######################################################################
-# DropDownList - Colleague
-@app.callback(
-    Output("colleague-selector", "options"),
-    [
-        Input("colleague-selector", "value"),
-        Input("project-selector", "value"),
-        Input("product-selector", "value"),
-        Input("date-picker", "start_date"),
-        Input("date-picker", "end_date"),
-    ],
-)
-def update_colleague_options(colleague, project, product, start_date, end_date):
-    # Filter date initial mask
-    data = data_importer.data
-    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
-    end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
-    mask = (data["date"] >= start_date) & (data["date"] <= end_date)
-
-    if project is not None:
-        mask = mask & (data["project"] == project)
-    if product is not None:
-        mask = mask & (data["product"] == product)
-
-    options = [{"label": i, "value": i} for i in data[mask]["colleague"].unique()]
-    options.sort(key=lambda x: x["label"])
-    return options
-
-
-# DropDownList - Projeto
-@app.callback(
-    Output("project-selector", "options"),
-    [
-        Input("colleague-selector", "value"),
-        Input("date-picker", "start_date"),
-        Input("date-picker", "end_date"),
-    ],
-)
-def update_project_options(colleague, start_date, end_date):
-    # Filter date initial mask
-    data = data_importer.data
-    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
-    end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
-    mask = (data["date"] >= start_date) & (data["date"] <= end_date)
-
-    if colleague is None:
-        projects = data[mask]["project"].dropna().unique()
-    else:
-        projects = (
-            data[mask & (data["colleague"] == colleague)].project.dropna().unique()
-        )
-
-    projects.sort()
-    return [{"label": project, "value": project} for project in projects]
-
-
-# DropDownList - Produto
-@app.callback(
-    Output("product-selector", "options"),
-    Output("product-selector-title", "children"),
-    [
-        Input("colleague-selector", "value"),
-        Input("project-selector", "value"),
-        Input("date-picker", "start_date"),
-        Input("date-picker", "end_date"),
-    ],
-)
-def update_product_options(colleague, project, start_date, end_date):
-    # Filter date initial mask
-    data = data_importer.data
-    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
-    end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
-    mask = (data["date"] >= start_date) & (data["date"] <= end_date)
-
-    if colleague is None and project is None:
-        products = data[mask]["product"].dropna().unique()
-
-    elif colleague is None and project is not None:
-        if project == "CODEX":
-            # todo: add javascript that changes label "Produto" to "Atividade" if CODEX is picked
-            products = (
-                data[mask & (data["project"] == project)]["activity"].dropna().unique()
-            )
-        else:
-            products = (
-                data[mask & (data["project"] == project)]["product"].dropna().unique()
-            )
-
-    elif colleague is not None and project is None:
-        products = (
-            data[mask & (data["colleague"] == colleague)]["product"].dropna().unique()
-        )
-
-    elif colleague is not None and project is not None:
-        if project == "CODEX":
-            # todo: add javascript that changes label "Produto" to "Atividade" if CODEX is picked
-            products = (
-                data[
-                    mask
-                    & (data["colleague"] == colleague)
-                    & (data["project"] == project)
-                ]["activity"]
-                .dropna()
-                .unique()
-            )
-        else:
-            products = (
-                data[
-                    mask
-                    & (data["colleague"] == colleague)
-                    & (data["project"] == project)
-                ]["product"]
-                .dropna()
-                .unique()
-            )
-
-    products.sort()
-    options = [{"label": product, "value": product} for product in products]
-
-    # CODEX has no produtos.
-    if project == "CODEX":
-        return options, "Atividade"
-    else:
-        return options, "Produto"
