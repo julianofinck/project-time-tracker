@@ -46,7 +46,7 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
     weekdays_trace_reported = go.Bar(
         x=df['colleague'],
         y=df['reported_weekdays_pct'],
-        name='Reported Weekdays',
+        name='Dias úteis<br>reportados',
         marker_color='green',
         hovertemplate='%{y:.2f}%<br>(%{text})',
         text=[f"{rw}/{wd}" for rw, wd in zip(df['reported_weekdays'], df['weekdays'])]
@@ -55,17 +55,17 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
     weekdays_trace_non_reported = go.Bar(
         x=df['colleague'],
         y=df['non_reported_weekdays_pct'],
-        name='Non-reported Weekdays',
+        name='Dias úteis<br>não-reportados',
         marker_color='red',
         hovertemplate='%{y:.2f}%<br>(%{text})',
-        text=[f"{wd-rw}/{wd}" for rw, wd in zip(df['reported_weekdays'], df['weekdays'])]
+        text=[f"{round(wd-rw, 2)}/{wd}" for rw, wd in zip(df['reported_weekdays'], df['weekdays'])]
     )
 
     # Create traces for workhours
     workhours_trace_reported = go.Bar(
         x=df['colleague'],
         y=df['reported_workhours_pct'],
-        name='Reported Workhours',
+        name='Horas<br>reportadas',
         marker_color='green',
         hovertemplate='%{y:.2f}%<br>(%{text})',
         text=[f"{rw}/{cw}" for rw, cw in zip(df['reported_workhous'], df['clt_workhours'])]
@@ -74,10 +74,10 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
     workhours_trace_non_reported = go.Bar(
         x=df['colleague'],
         y=df['non_reported_workhours_pct'],
-        name='Non-reported Workhours',
+        name='Horas não<br>reportadas',
         marker_color='red',
         hovertemplate='%{y:.2f}%<br>(%{text})',
-        text=[f"{cw-rw}/{cw}" for rw, cw in zip(df['reported_workhous'], df['clt_workhours'])]
+        text=[f"{round(cw-rw, 2)}/{cw}" for rw, cw in zip(df['reported_workhous'], df['clt_workhours'])]
     )
 
     # Combine traces
@@ -91,12 +91,23 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
     # Update layout
     fig.update_layout(
         barmode='stack',
-        title='Reported vs Non-reported Weekdays and Workhours',
-        xaxis_title='Colleague',
-        yaxis_title='Percentage',
-        showlegend=False
+        title='Horas e dias úteis reportados vs não-reportados',
+        xaxis_title='Pessoa',
+        yaxis_title='Porcentagens',
+        showlegend=False,
+        annotations=[
+            dict(
+                text="(Os dias são contados a partir do registro válido mais antigo. O programa ainda está considerando feriado um dia útil. É considerado que todas as pessoas façam 8,5 horas por dia.)",
+                xref='paper', yref='paper',
+                x=0.5, y=1.45,  # Adjust y to position the annotation at the bottom
+                showarrow=False,
+                font=dict(size=12),
+                xanchor='center',
+                yanchor='top'
+            )
+        ]
     )
-    
+
     return fig
 
 

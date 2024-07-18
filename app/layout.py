@@ -102,7 +102,7 @@ class Layout:
                                     id="update-area",
                                 ),
                                 html.H1(
-                                    "Visualizador de Apontamentos",
+                                    "Visualizador de Apontamentos (só registros válidos)",
                                     id="title",
                                     className="card-title",
                                 ),

@@ -22,10 +22,22 @@ def boxplot(data: pd.DataFrame) -> go.Figure:
         ))
 
     fig.update_layout(
-        xaxis_title='Colleague',
-        yaxis_title='Hours',
+        title="Boxplot de horas trabalhadas por pessoa",
+        xaxis_title='Pessoa',
+        yaxis_title='Horas',
         #boxmode='group'  # group together boxes of the different traces for each value of x
         showlegend=False,
+        annotations=[
+            dict(
+                text="(Há algumas horas claradas no banco de forma errada, por isso os valores negativos.)",
+                xref='paper', yref='paper',
+                x=0.5, y=1.45,  # Adjust y to position the annotation at the bottom
+                showarrow=False,
+                font=dict(size=12),
+                xanchor='center',
+                yanchor='top'
+            )
+        ]
     )
 
     return fig

@@ -317,19 +317,7 @@ def update_hist_invalid_registers(start_date, end_date, colleague, project, prod
     ],
 )
 def update_hist_commitment(start_date, end_date, colleague, project, product, tab_option):
-    data = data_importer.data
-
-    # Boxplot
-    if tab_option=="value2":
-        return boxplot(data)
-    
-    # FilledDays/Workdays
-    if tab_option=="value3":
-        return reported_workhours(data)
-        pass
-
-    # Get date of last filled day and groupby day
-    df = data[["colleague", "date"]].groupby(by="colleague", as_index=False).max()
+    df = data_importer.data
 
     # Get no valid register
     no_valid_register = [_coll for _coll in data_importer.colleague_list if _coll not in list(df.colleague)]
@@ -340,6 +328,17 @@ def update_hist_commitment(start_date, end_date, colleague, project, product, ta
         e.strip() for e in former_employees.replace(" e ", ", ").split(",")
     ]
     df = df[~df["colleague"].isin(former_employees)].reset_index(drop=True)
+
+    # Boxplot
+    if tab_option=="value2":
+        return boxplot(df)
+    
+    # FilledDays/Workdays
+    if tab_option=="value3":
+        return reported_workhours(df)
+
+    # Get date of last filled day and groupby day
+    df = df[["colleague", "date"]].groupby(by="colleague", as_index=False).max()
 
     # Group by date
     df = df.groupby("date", as_index=False)["colleague"].apply(", ".join)

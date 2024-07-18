@@ -44,7 +44,6 @@ class DataImporter:
                 sheet
                 for sheet in pd.ExcelFile(xlsx).sheet_names
                 if sheet not in ["KEYS", "INÍCIO", "PowerQuery"]
-                # TODO: "ignore Planilha, Sheet or Tabelle"
             ]
             for xlsx in self.xlsx.values()
         }
@@ -65,8 +64,16 @@ class DataImporter:
             'Horário 3 - Inicio', 'Horário 3 - fim',
             'Horário 4 - Inicio', 'Horário 4 - fim',
             ]
+        # Try read. If it fails, remove name from DataImporter, warn error, return "None"
         df = pd.read_excel(file_name, colleague, usecols=columns)
 
+        # Workaround for empty dataframes (when people add news sheets inadvertently)
+        if df.columns.empty:
+            self.colleague_list.remove(colleague)
+            self.filename_colleagues[file_name].remove(colleague)
+            print(f" WARNING: '{colleague}' has no data. Warning: REMOVED from data importer.")
+            return None
+        
         # Keep row number
         df["index"] = df.index  + 2
         
@@ -219,7 +226,8 @@ class DataImporter:
         self.progress = 0
         for i, (filename, colleague) in enumerate(filename_colleagues):
             df = self._get_df(filename, colleague)
-            data.append(df.dropna(axis=1, how="all"))
+            if isinstance(df, pd.DataFrame):
+                data.append(df.dropna(axis=1, how="all"))
             self.progress = (i + 1) / total_iterations * 100
 
         # Concatenate to single DataFrame
