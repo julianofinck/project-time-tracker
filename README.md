@@ -53,10 +53,6 @@ activity_is_string
 activity_not_codex
 hours_not_null
 ```
-
-- 2nd Histogram - 4 options:
-  - Last day filled in (OK!)
-  - 1st day
-  - FilledDays/Workdays 
-  - % of days filled in
-
+# TODO:
+- Add translator
+- Adjust README
