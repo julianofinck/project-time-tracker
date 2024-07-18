@@ -13,7 +13,7 @@ if os.path.exists("app/cache/state.pickle"):
         data_importer = pickle.load(f)
 
         # For integration purposes
-        data_importer.data.to_pickle("app/cache/data.pickle")
+        data_importer.data.to_pickle("app/cache/valid_data.pickle")
 else:
     data_importer = DataImporter()
     data_importer.get_dfs()
