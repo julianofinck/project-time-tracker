@@ -56,3 +56,4 @@ hours_not_null
 # TODO:
 - Add translator
 - Adjust README
+- Mark as invalid blockhours that are as Datetime instead of Time
