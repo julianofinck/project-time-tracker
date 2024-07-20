@@ -61,18 +61,16 @@ class AppState:
     def _get_df(self, file_name: str, colleague: str) -> pd.DataFrame:
         # Log colleague
         print(" >>", colleague)
+        if colleague == "Juliano":
+            pass
 
         # Read Excel sheetname of the specific Colleague
         first_columns = ["Data", "Projeto", "Produto", "Atividade"]
         columns = first_columns + [
-            "Horário 1 - Inicio",
-            "Horário 1 - fim",
-            "Horário 2 - Inicio",
-            "Horário 2 - fim",
-            "Horário 3 - Inicio",
-            "Horário 3 - fim",
-            "Horário 4 - Inicio",
-            "Horário 4 - fim",
+            "Horário 1 - Inicio", "Horário 1 - fim",
+            "Horário 2 - Inicio", "Horário 2 - fim",
+            "Horário 3 - Inicio", "Horário 3 - fim",
+            "Horário 4 - Inicio", "Horário 4 - fim",
         ]
         # Try read. If it fails, remove name from AppState, warn error, return "None"
         df = pd.read_excel(file_name, colleague, usecols=columns)
@@ -89,7 +87,7 @@ class AppState:
         # Keep row number
         df["index"] = df.index + 2
 
-        # Transform it into block hours (explode 1:N relationships)
+        # Explode activity in its block hours (explode 1:N relationships)
         lista = []
         for i in range(1, 5):
             workhour_block = df[
@@ -102,6 +100,13 @@ class AppState:
             ]
             lista.append(workhour_block)
         df = pd.concat(lista, axis=0, ignore_index=True)
+
+        # Drop rows with empty values
+        all_columns_null = df[[c for c in df.columns if c != "index"]].isna().all(axis=1)
+        df = df[~all_columns_null]
+
+        # Drop duplicates resulting of exploding activity in block hours
+        df = df.drop_duplicates()
 
         # Columns in lowercase
         df.columns = [
@@ -130,7 +135,9 @@ class AppState:
         mask_final_time = (~df["end_time"].isna()) & (
             df["end_time"].apply(lambda x: not isinstance(x, datetime.time))
         )
-        mask = mask_start_time | mask_final_time
+        # start_time OR end_time is NA but not all is NA
+        mask_not_all_na = ((df.start_time.isna()) | (df.start_time.isna())) & (~df.drop(columns=["index"]).isna().all(axis=1)) & (df.date.isna())
+        mask = mask_start_time | mask_final_time | mask_not_all_na
         df_wrong = df[mask].copy()
         df_wrong["hours"] = None
         df_wrong["hours"] = df_wrong["hours"].astype("float64")
@@ -139,9 +146,9 @@ class AppState:
         df = df[~mask].dropna(subset=["start_time", "end_time"])
 
         # Create "hours"
-        hours = pd.to_datetime(df["end_time"], format="%H:%M:%S") - pd.to_datetime(
-            df["start_time"], format="%H:%M:%S"
-        )
+        end_time = pd.to_datetime(df["end_time"], format="%H:%M:%S")
+        start_time = pd.to_datetime(df["start_time"], format="%H:%M:%S")
+        hours = end_time - start_time
         hours = hours.dt.total_seconds() / 3600
         df["hours"] = hours.round(2)
 
@@ -166,7 +173,7 @@ class AppState:
         )
         project_codex_growth = data["project"].str.lower().isin(["codex", "growth"])
         product_is_empty = data["product"].isna()
-        hours_not_null = data["hours"] != 0
+        hours_not_null = data["hours"] > 0
         valid_codex_growth = (
             date_is_datetime_not_na
             & project_codex_growth
@@ -175,7 +182,6 @@ class AppState:
         )
 
         # Mask for a valid project register
-        # TODO: extend validation to check if product is allowed under given project
         date_is_datetime_not_na = (
             data["date"].apply(lambda x: isinstance(x, datetime.datetime))
             & ~data["date"].isna()
@@ -189,7 +195,7 @@ class AppState:
         activity_is_string = data["activity"].apply(lambda x: isinstance(x, str))
         activity_not_codex = ~data["activity"].fillna("dummy").str.contains("Codex")
         activity_not_growth = ~data["activity"].fillna("dummy").str.contains("Growth")
-        hours_not_null = data["hours"] != 0
+        hours_not_null = data["hours"] > 0
         valid_project = (
             date_is_datetime_not_na
             & project_not_codex

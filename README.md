@@ -45,7 +45,7 @@ Strong dependency on OneDrive shortcut.
 date_not_empty
 project_codex_growth # case isentitive
 product_is_empty
-hours_not_null
+hours_positive
 
 # Valid Project 
 date_not_empty
@@ -57,7 +57,7 @@ product_is_string
 activity_not_empty
 activity_is_string
 activity_not_codex
-hours_not_null
+hours_positive
 ```
 # TODO:
 - Adjust README

@@ -52,6 +52,9 @@ def update_date_picker(colleague):
     ],
 )
 def update_colleague_options(colleague, project, product, start_date, end_date):
+    #if colleague is not None:
+    #    return [{"label": i, "value": i} for i in [colleague]]
+
     # Filter date initial mask
     data = app_state.data.valid
     start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
@@ -61,7 +64,11 @@ def update_colleague_options(colleague, project, product, start_date, end_date):
     if project is not None:
         mask = mask & (data["project"] == project)
     if product is not None:
-        mask = mask & (data["product"] == product)
+        if project == "CODEX":
+            activity = product
+            mask = mask & (data["activity"] == activity)
+        else:    
+            mask = mask & (data["product"] == product)
 
     options = [{"label": i, "value": i} for i in data[mask]["colleague"].unique()]
     options.sort(key=lambda x: x["label"])

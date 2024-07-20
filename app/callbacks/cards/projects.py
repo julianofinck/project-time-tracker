@@ -59,9 +59,10 @@ def update_hist_workhours(start_date, end_date, colleague, project, product):
 
         # CODEX case
         if project == "CODEX":
-            mask = mask & (data["project"] == project) & (data["activity"] == product)
+            activity = product
+            mask = mask & (data["project"] == project) & (data["activity"] == activity)
             grouped = (
-                data.loc[mask, ["colleague", "hours"]].groupby(["colleague"]).sum()
+                data.loc[mask, ["activity", "hours"]].groupby(["activity"]).sum()
             )
         else:
             mask = mask & (data["project"] == project) & (data["product"] == product)
