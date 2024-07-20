@@ -4,12 +4,13 @@ import json
 import os
 import pickle
 import time
+from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
 
 
-class DataImporter:
+class AppState:
     def __init__(self):
         paths = {
             "AF": os.getenv("XLSX_AF"),
@@ -24,7 +25,8 @@ class DataImporter:
         }
         self.colleague_list = None
         self.filename_colleagues = None
-        self.data = None
+        self.data = Data()
+
         self.progress = 0
 
     def _filter_desired(self):
@@ -49,7 +51,11 @@ class DataImporter:
         }
 
         self.filename_colleagues = filename_colleagues
-        self.colleague_list = [colleague for colleagues in self.filename_colleagues.values() for colleague in colleagues]
+        self.colleague_list = [
+            colleague
+            for colleagues in self.filename_colleagues.values()
+            for colleague in colleagues
+        ]
         self._filter_desired()
 
     def _get_df(self, file_name: str, colleague: str) -> pd.DataFrame:
@@ -59,43 +65,71 @@ class DataImporter:
         # Read Excel sheetname of the specific Colleague
         first_columns = ["Data", "Projeto", "Produto", "Atividade"]
         columns = first_columns + [
-            'Horário 1 - Inicio', 'Horário 1 - fim',
-            'Horário 2 - Inicio', 'Horário 2 - fim',
-            'Horário 3 - Inicio', 'Horário 3 - fim',
-            'Horário 4 - Inicio', 'Horário 4 - fim',
-            ]
-        # Try read. If it fails, remove name from DataImporter, warn error, return "None"
+            "Horário 1 - Inicio",
+            "Horário 1 - fim",
+            "Horário 2 - Inicio",
+            "Horário 2 - fim",
+            "Horário 3 - Inicio",
+            "Horário 3 - fim",
+            "Horário 4 - Inicio",
+            "Horário 4 - fim",
+        ]
+        # Try read. If it fails, remove name from AppState, warn error, return "None"
         df = pd.read_excel(file_name, colleague, usecols=columns)
 
         # Workaround for empty dataframes (when people add news sheets inadvertently)
         if df.columns.empty:
             self.colleague_list.remove(colleague)
             self.filename_colleagues[file_name].remove(colleague)
-            print(f" WARNING: '{colleague}' has no data. Warning: REMOVED from data importer.")
+            print(
+                f" WARNING: '{colleague}' has no data. Warning: REMOVED from data importer."
+            )
             return None
-        
+
         # Keep row number
-        df["index"] = df.index  + 2
-        
+        df["index"] = df.index + 2
+
         # Transform it into block hours (explode 1:N relationships)
         lista = []
         for i in range(1, 5):
-            workhour_block = df[first_columns + [f'Horário {i} - Inicio', f'Horário {i} - fim', 'index']].copy()
-            workhour_block.columns = first_columns + ['Horário - Inicio', 'Horário - fim', 'index']
+            workhour_block = df[
+                first_columns + [f"Horário {i} - Inicio", f"Horário {i} - fim", "index"]
+            ].copy()
+            workhour_block.columns = first_columns + [
+                "Horário - Inicio",
+                "Horário - fim",
+                "index",
+            ]
             lista.append(workhour_block)
         df = pd.concat(lista, axis=0, ignore_index=True)
 
         # Columns in lowercase
-        df.columns = ["date", "project", "product", "activity", "start_time", "end_time", "index"]
+        df.columns = [
+            "date",
+            "project",
+            "product",
+            "activity",
+            "start_time",
+            "end_time",
+            "index",
+        ]
 
         # Adjust decimal to time
         for column in ["start_time", "end_time"]:
-            series = df[column].apply(lambda x: decimal_to_time(x) if isinstance(x, (int, float)) else x)
-            df.loc[:, column] = series.apply(lambda x: x.time() if isinstance(x, (datetime.datetime)) else x)
+            series = df[column].apply(
+                lambda x: decimal_to_time(x) if isinstance(x, (int, float)) else x
+            )
+            df.loc[:, column] = series.apply(
+                lambda x: x.time() if isinstance(x, (datetime.datetime)) else x
+            )
 
         # Save for later
-        mask_start_time = (~df["start_time"].isna()) & (df["start_time"].apply(lambda x: not isinstance(x, datetime.time)))
-        mask_final_time = (~df["end_time"].isna()) & (df["end_time"].apply(lambda x: not isinstance(x, datetime.time)))
+        mask_start_time = (~df["start_time"].isna()) & (
+            df["start_time"].apply(lambda x: not isinstance(x, datetime.time))
+        )
+        mask_final_time = (~df["end_time"].isna()) & (
+            df["end_time"].apply(lambda x: not isinstance(x, datetime.time))
+        )
         mask = mask_start_time | mask_final_time
         df_wrong = df[mask].copy()
         df_wrong["hours"] = None
@@ -105,7 +139,9 @@ class DataImporter:
         df = df[~mask].dropna(subset=["start_time", "end_time"])
 
         # Create "hours"
-        hours = pd.to_datetime(df["end_time"], format="%H:%M:%S") - pd.to_datetime(df["start_time"], format="%H:%M:%S")
+        hours = pd.to_datetime(df["end_time"], format="%H:%M:%S") - pd.to_datetime(
+            df["start_time"], format="%H:%M:%S"
+        )
         hours = hours.dt.total_seconds() / 3600
         df["hours"] = hours.round(2)
 
@@ -114,7 +150,7 @@ class DataImporter:
 
         # Create "colleague"
         df["colleague"] = colleague
-       
+
         # Set index to search by controller
         df = df.sort_values(by=["date", "start_time"])
         df = df.reset_index(drop=True)
@@ -204,7 +240,7 @@ class DataImporter:
             pickle.dump(self, f)
 
             # For integration purposes
-            self.data.to_pickle("app/cache/valid_data.pickle")
+            self.data.valid.to_pickle("app/cache/valid_data.pickle")
 
     def get_dfs(self) -> None:
         """
@@ -237,8 +273,8 @@ class DataImporter:
         data, invalid = self._clean(data)
 
         # Store in class
-        self.data = data
-        self.invalid = invalid
+        self.data.valid = data
+        self.data.invalid = invalid
 
         # Print elapsed time
         tf = time.time()
@@ -248,12 +284,20 @@ class DataImporter:
         self.save_state()
 
 
+@dataclass
+class Data:
+    valid: pd.DataFrame = field(default_factory=pd.DataFrame)
+    invalid: pd.DataFrame = field(default_factory=pd.DataFrame)
+
+
 def decimal_to_time(decimal):
     if pd.isna(decimal):
         return None
     try:
         decimal = float(decimal)
         total_seconds = int(decimal * 24 * 3600)
-        return (datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=total_seconds)).time()
+        return (
+            datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=total_seconds)
+        ).time()
     except ValueError:
         return None

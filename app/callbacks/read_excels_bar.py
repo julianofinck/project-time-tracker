@@ -2,8 +2,7 @@ import threading
 
 from dash import Input, Output, State
 
-from . import app
-from .__init__ import data_importer
+from app import app, app_state
 
 # Global progress variable
 progress = 0
@@ -23,19 +22,20 @@ running_thread = False
 def start_update(n_intervals, n_clicks, style):
     global progress, running_thread
 
-    progress = data_importer.progress  # 140271963898160
+    progress = app_state.progress  # 140271963898160
 
     style["width"] = f"{progress}%"
+    # print(f"n_intervals: {n_intervals}\n", f"n_clicks: {n_clicks}\n", f"style: {style}\n", f"running_thread: {running_thread}\n",)
 
     if n_clicks not in (None, 0) and not running_thread:
-        threading.Thread(target=data_importer.get_dfs).start()
+        threading.Thread(target=app_state.get_dfs).start()
         running_thread = True
         return False, None, style, f"{int(progress)}%"
     elif running_thread and progress < 99:
         return False, None, style, f"{int(progress)}%"
     elif n_intervals > 10:
         running_thread = False
-        data_importer.progress = 0
+        app_state.progress = 0
         style["width"] = f"100%"
         return True, None, style, f"Atualizado!"
     else:

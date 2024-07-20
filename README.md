@@ -32,6 +32,12 @@ pip install -r requirements.txt
 ### Run project
 The application runs with a `python run.py`
 
+## How it works?
+Strong dependency on OneDrive shortcut.  
+<div style="display: flex; justify-content: center; align-items: center; height: fit-content;">
+    <img src="img/flowchart.svg" alt="Flowchart" style="background-color: white; height: 200px">
+</div>
+
 ## To Do:
 - Discuss validation rules:
 ```shell
@@ -57,3 +63,5 @@ hours_not_null
 - Add translator
 - Adjust README
 - Mark as invalid blockhours that are as Datetime instead of Time
+- Read Excel trigger a bug sometimes, the bar growing bar goes straight to 100% and disappears.
+- Add tables for the first card as well

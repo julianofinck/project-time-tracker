@@ -157,26 +157,22 @@ class Layout:
                                     [
                                         dcc.Tab(
                                             label="Último Preenchimento",
-                                            value="value1",
+                                            value="last-reported-day",
                                             **tab_commons,
                                         ),
                                         dcc.Tab(
                                             label="Boxplot",
-                                            value="value2",
+                                            value="boxplot",
                                             **tab_commons,
                                         ),
                                         dcc.Tab(
                                             label="Trabalhado/Transcorrido",
-                                            value="value3",
+                                            value="elapsed-reported",
                                             **tab_commons,
                                         ),
-                                        ##dcc.Tab(
-                                        ##    label="Percentage",
-                                        ##    value="value4",
-                                        ##    **tab_commons,
-                                        ##),
                                     ],
                                     id="tabs-container",
+                                    value="last-reported-day",
                                 ),
                                 dcc.Graph(id="histogram-commitment"),
                             ],
@@ -196,8 +192,7 @@ class Layout:
             [
                 html.P(title, id=f"{id}-title", className="selector-title"),
                 dcc.Dropdown(
-                    id=id,
-                    className="selector-content",
+                    id=id, className="selector-content", placeholder="Selecionar..."
                 ),
             ],
             className="selector",

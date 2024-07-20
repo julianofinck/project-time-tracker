@@ -3,21 +3,20 @@ import pickle
 
 from dash import Dash
 
-from .import_data import DataImporter
+from .app_state import AppState
 from .layout import Layout
-
 
 # Load the extractor if it exists in cache
 if os.path.exists("app/cache/state.pickle"):
     with open("app/cache/state.pickle", "rb") as f:
-        data_importer = pickle.load(f)
+        app_state = pickle.load(f)
 
         # For integration purposes
-        data_importer.data.to_pickle("app/cache/valid_data.pickle")
+        app_state.data.valid.to_pickle("app/cache/valid_data.pickle")
 else:
-    data_importer = DataImporter()
-    data_importer.get_dfs()
-    data_importer.save_state()
+    app_state = AppState()
+    app_state.get_dfs()
+    app_state.save_state()
 
 
 # Create app
@@ -25,7 +24,9 @@ app = Dash(__name__)
 app.title = "Codex Apontamentos"
 
 # Define layout
-app.layout = Layout().generate()
+from app.layout import generated_layout
+
+app.layout = generated_layout
 
 # Add callbacks
-from .callbacks import *
+from app.callbacks import *
