@@ -1,3 +1,4 @@
+from app.translate.translator import translator
 import threading
 
 from dash import Input, Output, State
@@ -37,6 +38,6 @@ def start_update(n_intervals, n_clicks, style):
         running_thread = False
         app_state.progress = 0
         style["width"] = f"100%"
-        return True, None, style, f"Atualizado!"
+        return True, None, style, translator.translate("Updated!")
     else:
         return True, None, style, f""

@@ -1,4 +1,5 @@
 from dash import dash_table, dcc, html
+from app.translate.translator import translator
 
 
 class Layout:
@@ -40,7 +41,7 @@ class Layout:
                         html.Div(
                             [
                                 html.P(
-                                    "Período de Interesse",
+                                    translator.translate("Period of Interest"),
                                     id="dropdown-title",
                                     className="selector-title",
                                 ),
@@ -61,9 +62,15 @@ class Layout:
                             className="selector",
                             style={"width": "30%"},
                         ),
-                        self.dropdown_list("Pessoa", "colleague-selector", "50%"),
-                        self.dropdown_list("Projeto", "project-selector", "50%"),
-                        self.dropdown_list("Produto", "product-selector", "100%"),
+                        self.dropdown_list(
+                            translator.translate("Employee"), 
+                            "colleague-selector", "50%"),
+                        self.dropdown_list(
+                            translator.translate("Project"), 
+                            "project-selector", "50%"),
+                        self.dropdown_list(
+                            translator.translate("Product"), 
+                            "product-selector", "100%"),
                     ],
                     id="selectors-container",
                 ),
@@ -84,7 +91,8 @@ class Layout:
                                         ),
                                         html.Div(
                                             html.Button(
-                                                "Reler planilhas", id="update-button"
+                                                translator.translate("Read Excels"), 
+                                                id="update-button"
                                             ),
                                             style={"width": "fit-content"},
                                         ),
@@ -102,7 +110,7 @@ class Layout:
                                     id="update-area",
                                 ),
                                 html.H1(
-                                    "Visualizador de Apontamentos (só registros válidos)",
+                                    translator.translate("Workhours Viewer"),
                                     id="title",
                                     className="card-title",
                                 ),
@@ -115,7 +123,7 @@ class Layout:
                         html.Div(
                             [
                                 html.H1(
-                                    "Registros Inválidos",
+                                    translator.translate("Invalid Records"),
                                     id="controller-title",
                                     className="card-title",
                                 ),
@@ -149,24 +157,24 @@ class Layout:
                         html.Div(
                             [
                                 html.H1(
-                                    "Compromisso da Equipe",
+                                    translator.translate("Team Commitment"),
                                     id="histogram-commitment-title",
                                     className="card-title",
                                 ),
                                 dcc.Tabs(
                                     [
                                         dcc.Tab(
-                                            label="Último Preenchimento",
+                                            label=translator.translate("Last Filled Day"),
                                             value="last-reported-day",
                                             **tab_commons,
                                         ),
                                         dcc.Tab(
-                                            label="Boxplot",
+                                            label=translator.translate("Boxplot"),
                                             value="boxplot",
                                             **tab_commons,
                                         ),
                                         dcc.Tab(
-                                            label="Trabalhado/Transcorrido",
+                                            label=translator.translate("Worked/Elapsed"),
                                             value="elapsed-reported",
                                             **tab_commons,
                                         ),
@@ -192,7 +200,8 @@ class Layout:
             [
                 html.P(title, id=f"{id}-title", className="selector-title"),
                 dcc.Dropdown(
-                    id=id, className="selector-content", placeholder="Selecionar..."
+                    id=id, className="selector-content", 
+                    placeholder=translator.translate("Select...")
                 ),
             ],
             className="selector",

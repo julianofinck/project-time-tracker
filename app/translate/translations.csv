@@ -1,24 +1,31 @@
-en,pt-br,es,de
-colega,colleague,colega,Kollege,
-Visualizador de Apontamentos,Notes Viewer,Visor de notas,Notizen-Betrachter,
-só registros válidos,only valid records,sólo registros válidos,nur gültige Datensätze,
-Registros Inválidos,Invalid Records,Registros no válidos,Ungültige Datensätze,
-Período de Interesse,Period of Interest,Período de interés,Zeitraum von Interesse,
-Pessoa,Person,Persona,Person,
-Projeto,Project,Proyecto,Projekt,
-Produto,Product,Producto,Produkt,
-Colaborador,Employee,Empleado,Mitarbeiter,
-Linha,Line,Línea,Zeile,
-Data,Date,Fecha,Datum,
-Horas,Time,Hora,Zeit,
-Atividade,Activity,Actividad,Tätigkeit,
-Compromisso da Equipe,Team Commitment,Compromiso del equipo,Teamverpflichtung,
-Último Preenchimento,Last Fill,Último relleno,Letzte Füllung,
-Boxplot,Boxplot,Boxplot,Boxplot,
-Trabalhado/Transcorrido,Worked/Elapsed,Trabajado/Transcurrido,Gearbeitet/Abgelaufen,
-Sem registro válidos,No valid records,No hay registros válidos,Keine gültigen Datensätze,
-Colegas do Futuro,Future colleagues,Futuros colegas,Zukünftige Kollegen,
-Boxplot de horas trabalhadas por Pessoa,Boxplot of hours worked by Person,Boxplot de horas trabajadas por Persona,Boxplot der Arbeitsstunden nach Person,
-Horas e dias úteis reportados vs não-reportados,Hours and working days reported vs. not reported,Horas y días de trabajo declarados frente a no declarados,Gemeldete vs. nicht gemeldete Arbeitsstunden und -tage,
-Porcentagens,Percentages,Porcentajes,Prozentsätze,
-Selecionar...,Select...,Seleccionar..,Auswählen...,
+ENGLISH,PORTUGUESE,SPANISH,GERMAN
+Activity,Atividade,Actividad,Tätigkeit
+Boxplot,Boxplot,Boxplot,Boxplot
+Date,Data,Fecha,Datum
+Employee,Empregado,Empleado,Mitarbeiter
+Employee from the Future,Colegas do Futuro,Futuros colegas,Zukünftige Kollegen
+Hours,Horas,Horas,Stunden
+Hours and working days reported vs. not reported,Horas e dias úteis reportados vs não-reportados,Horas y días de trabajo declarados frente a no declarados,Gemeldete vs. nicht gemeldete Arbeitsstunden und -tage
+Invalid Records,Registros Inválidos,Registros no válidos,Ungültige Datensätze
+Last Filled Day,Último Preenchimento,Último relleno,Letzte Eintragung
+Line,Linha,Línea,Zeile
+No valid records,Sem registro válidos,No hay registros válidos,Keine gültigen Datensätze
+only valid records,só registros válidos,sólo registros válidos,nur gültige Datensätze
+Percentages,Porcentagens,Porcentajes,Prozentsätze
+Period of Interest,Período de Interesse,Período de interés,Zeitraum von Interesse
+Product,Produto,Producto,Produkt
+Project,Projeto,Proyecto,Projekt
+Quantity,Quantidade,Quantidade,Quantität
+Read Excels,Reler planilhas,Reler planilhas,Excels abrufen
+Select...,Selecionar...,Seleccionar..,Auswählen...
+Team Commitment,Compromisso da Equipe,Compromiso del equipo,Teamverpflichtung
+Updated!,Atualizado!,Atualizado!,Aktualisiert!
+Working hours,Horas laborais,Horas laborales,Arbeitsstunden
+Worked/Elapsed,Trabalhado/Transcorrido,Trabajado/Transcurrido,Gearbeitet/Abgelaufen
+Workhours Viewer,Visualizador de Apontamentos,Visor de horas de trabajo,Arbeitsstunden-Viewer
+(Some hours declared in the bank are negative.),(Algumas horas declaradas no banco estão com valores negativos.),(Algunas horas declaradas en el banco son negativas).,(Einige in der Bank angegebene Stunden sind negativ.)
+Reported<br>weekdays,Dias úteis<br>reportados,Días laborables<br>declarados,Gemeldete<br>Wochentage
+Non-reported<br>weekdays,Dias úteis<br>não-reportados,Días de la semana<br>no declarados,Nicht gemeldete<br>Wochentage
+Reported<br>hours,Horas<br>reportadas,Horas<br>declaradas,Gemeldete<br>Stunden
+Non-reported<br>hours,Horas não<br>reportadas,Horas no<br>declaradas,Nicht gemeldete<br>Stunden
+(Days counted from the first valid day. Holidays are considered working days. All employees are assumed to work 8.5 hours per day),(Dias contados a partir do primeiro dia válido. Os feriados são considerados dias úteis. Presume-se que todos os funcionários trabalhem 8.5 horas por dia),(Días contados a partir del primer día válido. Las vacaciones se consideran días laborables. Se supone que todos los empleados trabajan 85 horas al día).,(Die Tage werden ab dem ersten gültigen Tag gezählt. Feiertage gelten als Arbeitstage. Jeder Arbeitnehmer arbeitet vermutlich 8.5 Stunden pro Tag)

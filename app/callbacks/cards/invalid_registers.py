@@ -7,7 +7,7 @@ from dash import Input, Output, State
 
 from app import app, app_state
 from app.commitment_card_processor import boxplot, reported_workhours
-
+from app.translate.translator import translator
 
 # Controller - Invalid Registers
 @app.callback(
@@ -39,15 +39,16 @@ def update_hist_invalid_registers(start_date, end_date, colleague, project, prod
     )
     invalid["date"].apply(lambda x: str(x) if pd.isna(x) else str(x))
 
-    # Adjust columns to portuguese
-    invalid.columns = [
-        "Colaborador",
-        "Linha",
-        "Data",
-        "Horas",
-        "Projeto",
-        "Produto",
-        "Atividade",
+    # Adjust column names
+    columns =[
+        "Employee",
+        "Line",
+        "Date",
+        "Hours",
+        "Project",
+        "Product",
+        "Activity",
     ]
+    invalid.columns = [translator.translate(c) for c in columns]
     columns = [{"name": i, "id": i} for i in invalid.columns]
     return invalid.to_dict("records"), columns

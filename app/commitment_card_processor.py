@@ -4,6 +4,7 @@ import dash
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
+from app.translate.translator import translator
 
 
 def last_reported_day(data: pd.DataFrame, no_valid_register) -> go.Figure:
@@ -22,8 +23,9 @@ def last_reported_day(data: pd.DataFrame, no_valid_register) -> go.Figure:
     if no_valid_register:
         no_valid_register.sort()
         min_date = df["date"].min() - datetime.timedelta(1)
-        texto = "Sem registro válido:<br>" + ", ".join(no_valid_register)
-        df.iloc[-1] = [min_date, texto, len(no_valid_register)]
+        text = translator.translate("No valid records")
+        text += ":<br>" + ", ".join(no_valid_register)
+        df.iloc[-1] = [min_date, text, len(no_valid_register)]
 
     # Adjust hasty employees
     today = datetime.datetime.now().date()
@@ -32,17 +34,18 @@ def last_reported_day(data: pd.DataFrame, no_valid_register) -> go.Figure:
     hasty_df = df[hasty_mask]
     if not hasty_df.empty:
         quantity = hasty_df["quantity"].sum()
-        texto = [
+        colleagues = [
             f"{row['colleague']} ({row['date'].strftime('%Y-%m-%d')})"
             for _, row in hasty_df.iterrows()
         ]
-        texto = "Colegas do Futuro:<br>" + "<br>".join(texto)
+        text = translator.translate("Employee from the Future")
+        text += ":<br>" + "<br>".join(colleagues)
 
         # Remove hasty
         df = df[~hasty_mask].reset_index(drop=True)
 
         # Add new register for visualizaiton
-        df.loc[len(df)] = [tomorrow, texto, quantity]
+        df.loc[len(df)] = [tomorrow, text, quantity]
 
         # Count
         df.groupby("date").size().reset_index(name="quantity")
@@ -87,9 +90,15 @@ def last_reported_day(data: pd.DataFrame, no_valid_register) -> go.Figure:
     ]
 
     # Create figure
-    figure = go.Figure(data=hist_data, layout=layout)
+    fig = go.Figure(
+        data=hist_data, 
+        layout=layout)
+    fig.update_layout(
+        xaxis_title=translator.translate("Last Filled Day"),
+        yaxis_title=translator.translate("Quantity"),
+        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
 
-    return figure
+    return fig
 
 
 def boxplot(data: pd.DataFrame) -> go.Figure:
@@ -115,18 +124,18 @@ def boxplot(data: pd.DataFrame) -> go.Figure:
         )
 
     fig.update_layout(
-        title="Boxplot de horas trabalhadas por pessoa",
-        xaxis_title="Pessoa",
-        yaxis_title="Horas",
+        #title=translator.translate("Boxplot of hours worked by Person"),
+        xaxis_title=translator.translate("Employee"),
+        yaxis_title=translator.translate("Working hours"),
         # boxmode='group'  # group together boxes of the different traces for each value of x
         showlegend=False,
         annotations=[
             dict(
-                text="(Há algumas horas claradas no banco de forma errada, por isso os valores negativos.)",
+                text=translator.translate("(Some hours declared in the bank are negative.)"),
                 xref="paper",
                 yref="paper",
                 x=0.5,
-                y=1.45,  # Adjust y to position the annotation at the bottom
+                y=1.05,  # Adjust y to position the annotation at the bottom
                 showarrow=False,
                 font=dict(size=12),
                 xanchor="center",
@@ -184,7 +193,7 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
     weekdays_trace_reported = go.Bar(
         x=df["colleague"],
         y=df["reported_weekdays_pct"],
-        name="Dias úteis<br>reportados",
+        name=translator.translate("Reported<br>weekdays"),
         marker_color="green",
         hovertemplate="%{y:.2f}%<br>(%{text})",
         text=[f"{rw}/{wd}" for rw, wd in zip(df["reported_weekdays"], df["weekdays"])],
@@ -193,7 +202,7 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
     weekdays_trace_non_reported = go.Bar(
         x=df["colleague"],
         y=df["non_reported_weekdays_pct"],
-        name="Dias úteis<br>não-reportados",
+        name=translator.translate("Non-reported<br>weekdays"),
         marker_color="red",
         hovertemplate="%{y:.2f}%<br>(%{text})",
         text=[
@@ -206,7 +215,7 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
     workhours_trace_reported = go.Bar(
         x=df["colleague"],
         y=df["reported_workhours_pct"],
-        name="Horas<br>reportadas",
+        name=translator.translate("Reported<br>hours"),
         marker_color="green",
         hovertemplate="%{y:.2f}%<br>(%{text})",
         text=[
@@ -217,7 +226,7 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
     workhours_trace_non_reported = go.Bar(
         x=df["colleague"],
         y=df["non_reported_workhours_pct"],
-        name="Horas não<br>reportadas",
+        name=translator.translate("Non-reported<br>hours"),
         marker_color="red",
         hovertemplate="%{y:.2f}%<br>(%{text})",
         text=[
@@ -239,17 +248,17 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
     # Update layout
     fig.update_layout(
         barmode="stack",
-        title="Horas e dias úteis reportados vs não-reportados",
-        xaxis_title="Pessoa",
-        yaxis_title="Porcentagens",
+        title=translator.translate("Hours and working days reported vs. not reported"),
+        xaxis_title=translator.translate("Employee"),
+        yaxis_title=translator.translate("Percentages"),
         showlegend=False,
         annotations=[
             dict(
-                text="(Os dias são contados a partir do registro válido mais antigo. O programa ainda está considerando feriado um dia útil. É considerado que todas as pessoas façam 8,5 horas por dia.)",
+                text=translator.translate("(Days counted from the first valid day. Holidays are considered working days. All employees are assumed to work 8.5 hours per day)"),
                 xref="paper",
                 yref="paper",
                 x=0.5,
-                y=1.45,  # Adjust y to position the annotation at the bottom
+                y=1.05,  # Adjust y to position the annotation at the bottom
                 showarrow=False,
                 font=dict(size=12),
                 xanchor="center",

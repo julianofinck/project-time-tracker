@@ -1,3 +1,5 @@
+from app.translate.translator import translator
+                                   
 import datetime
 
 from dash import Input, Output
@@ -158,6 +160,6 @@ def update_product_options(colleague, project, start_date, end_date):
 
     # CODEX has no produtos.
     if project == "CODEX":
-        return options, "Atividade"
+        return options, translator.translate("Activity")
     else:
-        return options, "Produto"
+        return options, translator.translate("Product")
