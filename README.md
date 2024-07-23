@@ -1,5 +1,5 @@
 # Working Hours Dashboard
-In short, this is a project and time tracking tool with data visualization. Our company keeps track of working hours in projects in four excel worksheets, which are filled in daily by colleagues. Each excel worksheet has a sheet named after the colleague responsible for filling it with the name of the project, product and task name. Each row also encompasses the time spent in it:
+This is a project and time tracking tool with data visualization. Our company keeps track of working hours in projects in 4 excel worksheets, which are filled in daily by colleagues. Each excel worksheet has a sheet named after the colleague responsible for filling it with the name of the project, product and task name. Each row also encompasses the time spent in it:
 - [A_ao_F_APONTAMENTOS_OPE_2023](
 https://imgoffice.sharepoint.com/:x:/r/sites/Codex-Operao/_layouts/15/Doc.aspx?sourcedoc=%7Bbf857d1f-05ab-453d-9472-60d8fe7fed22%7D)
 - [G_ao_K_APONTAMENTOS_OPE_2023](
@@ -64,3 +64,4 @@ hours_positive
 - Mark as invalid blockhours that are as Datetime instead of Time
 - Read Excel trigger a bug sometimes, the bar growing bar goes straight to 100% and disappears.
 - Add tables for the first card as well
+- change "pip" to "poetry"

@@ -307,3 +307,8 @@ def decimal_to_time(decimal):
         ).time()
     except ValueError:
         return None
+
+
+
+
+str
