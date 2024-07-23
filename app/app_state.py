@@ -61,8 +61,6 @@ class AppState:
     def _get_df(self, file_name: str, colleague: str) -> pd.DataFrame:
         # Log colleague
         print(" >>", colleague)
-        if colleague == "Juliano":
-            pass
 
         # Read Excel sheetname of the specific Colleague
         first_columns = ["Data", "Projeto", "Produto", "Atividade"]
