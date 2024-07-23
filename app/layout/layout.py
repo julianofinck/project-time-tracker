@@ -1,4 +1,5 @@
 from dash import dash_table, dcc, html
+
 from app.translate.translator import translator
 
 
@@ -63,14 +64,16 @@ class Layout:
                             style={"width": "30%"},
                         ),
                         self.dropdown_list(
-                            translator.translate("Employee"), 
-                            "colleague-selector", "50%"),
+                            translator.translate("Employee"),
+                            "colleague-selector",
+                            "50%",
+                        ),
                         self.dropdown_list(
-                            translator.translate("Project"), 
-                            "project-selector", "50%"),
+                            translator.translate("Project"), "project-selector", "50%"
+                        ),
                         self.dropdown_list(
-                            translator.translate("Product"), 
-                            "product-selector", "100%"),
+                            translator.translate("Product"), "product-selector", "100%"
+                        ),
                     ],
                     id="selectors-container",
                 ),
@@ -91,8 +94,8 @@ class Layout:
                                         ),
                                         html.Div(
                                             html.Button(
-                                                translator.translate("Read Excels"), 
-                                                id="update-button"
+                                                translator.translate("Read Excels"),
+                                                id="update-button",
                                             ),
                                             style={"width": "fit-content"},
                                         ),
@@ -164,7 +167,9 @@ class Layout:
                                 dcc.Tabs(
                                     [
                                         dcc.Tab(
-                                            label=translator.translate("Last Filled Day"),
+                                            label=translator.translate(
+                                                "Last Filled Day"
+                                            ),
                                             value="last-reported-day",
                                             **tab_commons,
                                         ),
@@ -174,7 +179,9 @@ class Layout:
                                             **tab_commons,
                                         ),
                                         dcc.Tab(
-                                            label=translator.translate("Worked/Elapsed"),
+                                            label=translator.translate(
+                                                "Worked/Elapsed"
+                                            ),
                                             value="elapsed-reported",
                                             **tab_commons,
                                         ),
@@ -200,8 +207,9 @@ class Layout:
             [
                 html.P(title, id=f"{id}-title", className="selector-title"),
                 dcc.Dropdown(
-                    id=id, className="selector-content", 
-                    placeholder=translator.translate("Select...")
+                    id=id,
+                    className="selector-content",
+                    placeholder=translator.translate("Select..."),
                 ),
             ],
             className="selector",

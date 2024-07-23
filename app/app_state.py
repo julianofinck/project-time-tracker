@@ -65,10 +65,14 @@ class AppState:
         # Read Excel sheetname of the specific Colleague
         first_columns = ["Data", "Projeto", "Produto", "Atividade"]
         columns = first_columns + [
-            "Horário 1 - Inicio", "Horário 1 - fim",
-            "Horário 2 - Inicio", "Horário 2 - fim",
-            "Horário 3 - Inicio", "Horário 3 - fim",
-            "Horário 4 - Inicio", "Horário 4 - fim",
+            "Horário 1 - Inicio",
+            "Horário 1 - fim",
+            "Horário 2 - Inicio",
+            "Horário 2 - fim",
+            "Horário 3 - Inicio",
+            "Horário 3 - fim",
+            "Horário 4 - Inicio",
+            "Horário 4 - fim",
         ]
         # Try read. If it fails, remove name from AppState, warn error, return "None"
         df = pd.read_excel(file_name, colleague, usecols=columns)
@@ -100,7 +104,9 @@ class AppState:
         df = pd.concat(lista, axis=0, ignore_index=True)
 
         # Drop rows with empty values
-        all_columns_null = df[[c for c in df.columns if c != "index"]].isna().all(axis=1)
+        all_columns_null = (
+            df[[c for c in df.columns if c != "index"]].isna().all(axis=1)
+        )
         df = df[~all_columns_null]
 
         # Drop duplicates resulting of exploding activity in block hours
@@ -134,7 +140,11 @@ class AppState:
             df["end_time"].apply(lambda x: not isinstance(x, datetime.time))
         )
         # start_time OR end_time is NA but not all is NA
-        mask_not_all_na = ((df.start_time.isna()) | (df.start_time.isna())) & (~df.drop(columns=["index"]).isna().all(axis=1)) & (df.date.isna())
+        mask_not_all_na = (
+            ((df.start_time.isna()) | (df.start_time.isna()))
+            & (~df.drop(columns=["index"]).isna().all(axis=1))
+            & (df.date.isna())
+        )
         mask = mask_start_time | mask_final_time | mask_not_all_na
         df_wrong = df[mask].copy()
         df_wrong["hours"] = None
@@ -305,8 +315,6 @@ def decimal_to_time(decimal):
         ).time()
     except ValueError:
         return None
-
-
 
 
 str

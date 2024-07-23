@@ -1,10 +1,9 @@
-from app.translate.translator import translator
-                                   
 import datetime
 
 from dash import Input, Output
 
 from app import app, app_state
+from app.translate.translator import translator
 
 
 ## Header Dropdown Lists #######################################################################
@@ -52,7 +51,7 @@ def update_date_picker(colleague):
     ],
 )
 def update_colleague_options(colleague, project, product, start_date, end_date):
-    #if colleague is not None:
+    # if colleague is not None:
     #    return [{"label": i, "value": i} for i in [colleague]]
 
     # Filter date initial mask
@@ -67,7 +66,7 @@ def update_colleague_options(colleague, project, product, start_date, end_date):
         if project == "CODEX":
             activity = product
             mask = mask & (data["activity"] == activity)
-        else:    
+        else:
             mask = mask & (data["product"] == product)
 
     options = [{"label": i, "value": i} for i in data[mask]["colleague"].unique()]

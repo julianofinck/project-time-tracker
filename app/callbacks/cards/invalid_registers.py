@@ -9,6 +9,7 @@ from app import app, app_state
 from app.commitment_card_processor import boxplot, reported_workhours
 from app.translate.translator import translator
 
+
 # Controller - Invalid Registers
 @app.callback(
     Output("controller-table", "data"),
@@ -40,7 +41,7 @@ def update_hist_invalid_registers(start_date, end_date, colleague, project, prod
     invalid["date"].apply(lambda x: str(x) if pd.isna(x) else str(x))
 
     # Adjust column names
-    columns =[
+    columns = [
         "Employee",
         "Line",
         "Date",

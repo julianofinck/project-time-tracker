@@ -4,6 +4,7 @@ import dash
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
+
 from app.translate.translator import translator
 
 
@@ -90,13 +91,12 @@ def last_reported_day(data: pd.DataFrame, no_valid_register) -> go.Figure:
     ]
 
     # Create figure
-    fig = go.Figure(
-        data=hist_data, 
-        layout=layout)
+    fig = go.Figure(data=hist_data, layout=layout)
     fig.update_layout(
         xaxis_title=translator.translate("Last Filled Day"),
         yaxis_title=translator.translate("Quantity"),
-        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
+        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
+    )
 
     return fig
 
@@ -124,14 +124,16 @@ def boxplot(data: pd.DataFrame) -> go.Figure:
         )
 
     fig.update_layout(
-        #title=translator.translate("Boxplot of hours worked by Person"),
+        # title=translator.translate("Boxplot of hours worked by Person"),
         xaxis_title=translator.translate("Employee"),
         yaxis_title=translator.translate("Working hours"),
         # boxmode='group'  # group together boxes of the different traces for each value of x
         showlegend=False,
         annotations=[
             dict(
-                text=translator.translate("(Some hours declared in the bank are negative.)"),
+                text=translator.translate(
+                    "(Some hours declared in the bank are negative.)"
+                ),
                 xref="paper",
                 yref="paper",
                 x=0.5,
@@ -254,7 +256,9 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
         showlegend=False,
         annotations=[
             dict(
-                text=translator.translate("(Days counted from the first valid day. Holidays are considered working days. All employees are assumed to work 8.5 hours per day)"),
+                text=translator.translate(
+                    "(Days counted from the first valid day. Holidays are considered working days. All employees are assumed to work 8.5 hours per day)"
+                ),
                 xref="paper",
                 yref="paper",
                 x=0.5,

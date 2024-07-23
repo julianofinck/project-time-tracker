@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "project-time-tracker"
+version = "0.1.0"
+description = "This app generate dynamic graphs to analyse a company. It assumes the company members daily report the hours invested in each project, product and task"
+authors = ["Juliano Santos Finck <59181757+julianofinck@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-dotenv = "^1.0.1"
+dash = "^2.17.1"
+numpy = "^2.0.1"
+pandas = "^2.2.2"
+
+[tool.poetry.group.dev.dependencies]
+black = "24.4.2"
+isort = "5.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
