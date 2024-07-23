@@ -1,6 +1,9 @@
 import os
 import pandas as pd
+from dotenv import load_dotenv
 
+
+load_dotenv()
 
 class Translator:
     def __init__(self, language: str):
