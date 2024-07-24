@@ -176,12 +176,12 @@ class AppState:
         )
         project_codex_growth = data["project"].str.lower().isin(["codex", "growth"])
         product_is_empty = data["product"].isna()
-        hours_not_null = data["hours"] > 0
+        hours_positive = data["hours"] > 0
         valid_codex_growth = (
             date_is_datetime_not_na
             & project_codex_growth
             & product_is_empty
-            & hours_not_null
+            & hours_positive
         )
 
         # Mask for a valid project register
@@ -198,7 +198,7 @@ class AppState:
         activity_is_string = data["activity"].apply(lambda x: isinstance(x, str))
         activity_not_codex = ~data["activity"].fillna("dummy").str.contains("Codex")
         activity_not_growth = ~data["activity"].fillna("dummy").str.contains("Growth")
-        hours_not_null = data["hours"] > 0
+        hours_positive = data["hours"] > 0
         valid_project = (
             date_is_datetime_not_na
             & project_not_codex
@@ -210,7 +210,7 @@ class AppState:
             & activity_is_string
             & activity_not_codex
             & activity_not_growth
-            & hours_not_null
+            & hours_positive
         )
 
         valid_mask = valid_codex_growth | valid_project
