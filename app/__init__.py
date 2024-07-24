@@ -4,7 +4,6 @@ import pickle
 from dash import Dash
 
 from .app_state import AppState
-from .layout import Layout
 
 # Load the extractor if it exists in cache
 if os.path.exists("app/cache/state.pickle"):
@@ -21,7 +20,7 @@ else:
 
 # Create app
 app = Dash(__name__)
-app.title = "Codex Apontamentos"
+app.title = "Apontamentos"
 
 # Define layout
 from app.layout import generated_layout

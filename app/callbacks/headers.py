@@ -93,9 +93,7 @@ def update_project_options(employee, start_date, end_date):
     if employee is None:
         projects = data[mask]["project"].dropna().unique()
     else:
-        projects = (
-            data[mask & (data["employee"] == employee)].project.dropna().unique()
-        )
+        projects = data[mask & (data["employee"] == employee)].project.dropna().unique()
 
     projects.sort()
     return [{"label": project, "value": project} for project in projects]
@@ -143,9 +141,7 @@ def update_product_options(employee, project, start_date, end_date):
             # todo: add javascript that changes label "Produto" to "Atividade" if CODEX is picked
             products = (
                 data[
-                    mask
-                    & (data["employee"] == employee)
-                    & (data["project"] == project)
+                    mask & (data["employee"] == employee) & (data["project"] == project)
                 ]["activity"]
                 .dropna()
                 .unique()
@@ -153,9 +149,7 @@ def update_product_options(employee, project, start_date, end_date):
         else:
             products = (
                 data[
-                    mask
-                    & (data["employee"] == employee)
-                    & (data["project"] == project)
+                    mask & (data["employee"] == employee) & (data["project"] == project)
                 ]["product"]
                 .dropna()
                 .unique()

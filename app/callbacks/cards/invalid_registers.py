@@ -1,5 +1,4 @@
 import datetime
-import os
 
 import pandas as pd
 from dash import Input, Output
@@ -21,24 +20,31 @@ from app.translate.translator import translator
     ],
 )
 def update_hist_invalid_registers(start_date, end_date, employee, project, product):
-    invalid = app_state.data.invalid.copy()
+    df = app_state.data.invalid.copy()
 
     # Filter by employee
-    if employee in invalid["employee"].unique():
-        invalid = invalid[invalid["employee"] == employee]
+    if employee in df["employee"].unique():
+        df = df[df["employee"] == employee]
 
-    # Adjust column order for controller
-    invalid = invalid[
-        ["employee", "line", "date", "hours", "project", "product", "activity"]
-    ]
+    # Sort by date and start time
+    df = df.sort_values(
+        by=["employee", "date", "start_time"], ascending=[True, False, False]
+    ).copy()
+
+    # Adjust columns order
+    df = df[["employee", "line", "date", "hours", "project", "product", "activity"]]
 
     # Adjust date
-    invalid["date"] = invalid["date"].apply(
+    df["date"] = df["date"].apply(
         lambda x: x.date() if isinstance(x, datetime.datetime) else x
     )
-    invalid["date"].apply(lambda x: str(x) if pd.isna(x) else str(x))
+    df["date"].apply(lambda x: str(x) if pd.isna(x) else str(x))
 
-    # Adjust column names
-    invalid.columns = [translator.translate(c).capitalize() for c in invalid.columns]
-    columns = [{"name": i, "id": i} for i in invalid.columns]
-    return invalid.to_dict("records"), columns
+    # Get columns
+    df.columns = [translator.translate(c).capitalize() for c in df.columns]
+    columns = [{"name": i, "id": i} for i in df.columns]
+
+    # Get data
+    data = df.to_dict("records")
+
+    return data, columns

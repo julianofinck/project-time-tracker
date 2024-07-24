@@ -2,13 +2,14 @@ from dash import dash_table, dcc, html
 
 from app.translate.translator import translator
 
-
 EXTERNAL_LINKS = [
     "https://fonts.googleapis.com/css?family=Open+Sans",
-    ]
+]
+
 
 def links_html(*links):
     return [html.Link(rel="stylesheet", href=link) for link in links]
+
 
 class Layout:
     def __init__(self):
@@ -26,7 +27,8 @@ class Layout:
             "selected_style": {"padding": "4px"},
         }
         layout = html.Div(
-            links_html(*EXTERNAL_LINKS) + [
+            links_html(*EXTERNAL_LINKS)
+            + [
                 # Selectors
                 html.Div(
                     [
@@ -68,13 +70,11 @@ class Layout:
                     ],
                     id="selectors-container",
                 ),
-
                 # Widgets & Cards
                 html.Div(
                     [
                         # Spacer
                         html.Div(id="header-spacer"),
-
                         # Card - Working hours
                         html.Div(
                             [
@@ -111,7 +111,6 @@ class Layout:
                                     className="card-title",
                                 ),
                                 dcc.Graph(id="histogram"),
-
                                 # Table
                                 html.Div(
                                     [
@@ -122,10 +121,13 @@ class Layout:
                                         ),
                                         # Table
                                         html.Div(
-                                            className='table',
+                                            className="table",
                                             children=dash_table.DataTable(
                                                 id="valid-table",
-                                                columns=[{"name": i, "id": i} for i in ["dummy"]],
+                                                columns=[
+                                                    {"name": i, "id": i}
+                                                    for i in ["dummy"]
+                                                ],
                                                 data=["dummy"],
                                                 page_size=10,
                                                 style_table={
@@ -145,16 +147,15 @@ class Layout:
                                                     "fontWeight": "bold",
                                                 },
                                             ),
-                                        )
+                                        ),
                                     ],
                                     id="valid-table-container",
                                     className="card2",
-                                )
+                                ),
                             ],
                             id="main-analysis",
                             className="card",
                         ),
-                        
                         # Card - Controller-table
                         html.Div(
                             [
@@ -165,10 +166,12 @@ class Layout:
                                 ),
                                 # Table
                                 html.Div(
-                                    className='table',
-                                    children= dash_table.DataTable(
+                                    className="table",
+                                    children=dash_table.DataTable(
                                         id="controller-table",
-                                        columns=[{"name": i, "id": i} for i in ["dummy"]],
+                                        columns=[
+                                            {"name": i, "id": i} for i in ["dummy"]
+                                        ],
                                         data=["dummy"],
                                         page_size=10,
                                         style_table={
@@ -188,12 +191,11 @@ class Layout:
                                             "fontWeight": "bold",
                                         },
                                     ),
-                                )
+                                ),
                             ],
                             id="controller-table-container",
                             className="card",
                         ),
-                        
                         # Card - Commitment Histogram
                         html.Div(
                             [

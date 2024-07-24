@@ -1,12 +1,9 @@
 import datetime
-import itertools
-import json
 import os
 import pickle
 import time
 from dataclasses import dataclass, field
 
-import numpy as np
 import pandas as pd
 
 
@@ -18,9 +15,9 @@ class AppState:
             "LP": os.getenv("XLSX_LP"),
             "RZ": os.getenv("XLSX_RZ"),
         }
-        apontamentos_dir = os.getenv("APONTAMENTOS_DIR")
+        COMPANY_WORKHOURS_EXCELS_DIR = os.getenv("COMPANY_WORKHOURS_EXCELS_DIR")
         self.xlsx = {
-            initials: os.path.join(apontamentos_dir, xlsx_filepath)
+            initials: os.path.join(COMPANY_WORKHOURS_EXCELS_DIR, xlsx_filepath)
             for initials, xlsx_filepath in paths.items()
         }
         self.employee_list = None
@@ -104,9 +101,7 @@ class AppState:
         df = pd.concat(lista, axis=0, ignore_index=True)
 
         # Drop rows with empty values
-        all_columns_null = (
-            df[[c for c in df.columns if c != "line"]].isna().all(axis=1)
-        )
+        all_columns_null = df[[c for c in df.columns if c != "line"]].isna().all(axis=1)
         df = df[~all_columns_null]
 
         # Drop duplicates resulting of exploding activity in block hours

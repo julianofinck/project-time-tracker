@@ -1,7 +1,5 @@
 import datetime
-import os
 
-import pandas as pd
 import plotly.graph_objs as go
 from dash import Input, Output
 
@@ -105,10 +103,14 @@ def update_hist_workhours(start_date, end_date, employee, project, product):
 
 def get_table(df):
     # Sort by date and start time
-    df = df.sort_values(by=["employee", "date", "start_time"], ascending=[True, False, False]).copy()
+    df = df.sort_values(
+        by=["employee", "date", "start_time"], ascending=[True, False, False]
+    ).copy()
 
     # Adjust columns order
     df = df[["employee", "line", "date", "project", "product", "activity", "hours"]]
+
+    # Adjust date
     df["date"] = df["date"].apply(lambda x: x.strftime("%d/%m/%Y"))
 
     # Get columns
@@ -116,6 +118,6 @@ def get_table(df):
     columns = [{"name": i, "id": i} for i in df.columns]
 
     # Get data
-    data = df.to_dict('records')
+    data = df.to_dict("records")
 
     return data, columns
