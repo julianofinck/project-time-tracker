@@ -14,20 +14,20 @@ from app.commitment_card_processor import (boxplot, last_reported_day,
     [
         Input("date-picker", "start_date"),
         Input("date-picker", "end_date"),
-        Input("colleague-selector", "value"),
+        Input("employee-selector", "value"),
         Input("project-selector", "value"),
         Input("product-selector", "value"),
         Input("tabs-container", "value"),
     ],
 )
 def update_hist_commitment(
-    start_date, end_date, colleague, project, product, tab_option
+    start_date, end_date, employee, project, product, tab_option
 ):
     df = app_state.data.valid
 
     # Get no valid register
     no_valid_register = [
-        _coll for _coll in app_state.colleague_list if _coll not in list(df.colleague)
+        _coll for _coll in app_state.employee_list if _coll not in list(df.employee)
     ]
 
     # Remove former employees
@@ -35,7 +35,7 @@ def update_hist_commitment(
     former_employees = [
         e.strip() for e in former_employees.replace(" e ", ", ").split(",")
     ]
-    df = df[~df["colleague"].isin(former_employees)].reset_index(drop=True)
+    df = df[~df["employee"].isin(former_employees)].reset_index(drop=True)
 
     # Last reported day
     if tab_option == "last-reported-day":

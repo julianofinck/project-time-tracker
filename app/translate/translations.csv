@@ -7,6 +7,7 @@ Employee from the Future,Colegas do Futuro,Futuros colegas,Zukünftige Kollegen
 Hours,Horas,Horas,Stunden
 Hours and working days reported vs. not reported,Horas e dias úteis reportados vs não-reportados,Horas y días de trabajo declarados frente a no declarados,Gemeldete vs. nicht gemeldete Arbeitsstunden und -tage
 Invalid Records,Registros Inválidos,Registros no válidos,Ungültige Datensätze
+Valid Records,Registros Válidos,Registros válidos,Gültige Datensätze
 Last Filled Day,Último Preenchimento,Último relleno,Letzte Eintragung
 Line,Linha,Línea,Zeile
 No valid records,Sem registro válidos,No hay registros válidos,Keine gültigen Datensätze
@@ -23,7 +24,6 @@ Updated!,Atualizado!,Atualizado!,Aktualisiert!
 Working hours,Horas laborais,Horas laborales,Arbeitsstunden
 Worked/Elapsed,Trabalhado/Transcorrido,Trabajado/Transcurrido,Gearbeitet/Abgelaufen
 Workhours Viewer,Visualizador de Apontamentos,Visor de horas de trabajo,Arbeitsstunden-Viewer
-(Some hours declared in the bank are negative.),(Algumas horas declaradas no banco estão com valores negativos.),(Algunas horas declaradas en el banco son negativas).,(Einige in der Bank angegebene Stunden sind negativ.)
 Reported<br>weekdays,Dias úteis<br>reportados,Días laborables<br>declarados,Gemeldete<br>Wochentage
 Non-reported<br>weekdays,Dias úteis<br>não-reportados,Días de la semana<br>no declarados,Nicht gemeldete<br>Wochentage
 Reported<br>hours,Horas<br>reportadas,Horas<br>declaradas,Gemeldete<br>Stunden

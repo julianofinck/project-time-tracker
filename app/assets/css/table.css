@@ -1,0 +1,21 @@
+/* Controller Table */
+#controller-table {
+    width: 100%;
+    height: auto;
+    color: #000000;
+    padding-top: 10px;
+}
+.table {
+    color: black;
+    font-size: 9px;
+}
+.previous-next-container {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background-color: #e6e6e6;
+    width: fit-content;
+}
+.page-number.last-page {
+    background-color: #e6a23c;
+}

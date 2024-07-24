@@ -12,15 +12,15 @@ def last_reported_day(data: pd.DataFrame, no_valid_register) -> go.Figure:
     df = data
 
     # Get date of last filled day and groupby day
-    df = df[["colleague", "date"]].groupby(by="colleague", as_index=False).max()
+    df = df[["employee", "date"]].groupby(by="employee", as_index=False).max()
 
     # Group by date
-    df = df.groupby("date", as_index=False)["colleague"].apply(", ".join)
+    df = df.groupby("date", as_index=False)["employee"].apply(", ".join)
 
     # Count quantity
-    df["quantity"] = df["colleague"].apply(lambda x: x.count(",") + 1)
+    df["quantity"] = df["employee"].apply(lambda x: x.count(",") + 1)
 
-    # Add colleague who never filled the table properly as well
+    # Add employee who never filled the table properly as well
     if no_valid_register:
         no_valid_register.sort()
         min_date = df["date"].min() - datetime.timedelta(1)
@@ -35,12 +35,12 @@ def last_reported_day(data: pd.DataFrame, no_valid_register) -> go.Figure:
     hasty_df = df[hasty_mask]
     if not hasty_df.empty:
         quantity = hasty_df["quantity"].sum()
-        colleagues = [
-            f"{row['colleague']} ({row['date'].strftime('%Y-%m-%d')})"
+        employees = [
+            f"{row['employee']} ({row['date'].strftime('%Y-%m-%d')})"
             for _, row in hasty_df.iterrows()
         ]
         text = translator.translate("Employee from the Future")
-        text += ":<br>" + "<br>".join(colleagues)
+        text += ":<br>" + "<br>".join(employees)
 
         # Remove hasty
         df = df[~hasty_mask].reset_index(drop=True)
@@ -82,7 +82,7 @@ def last_reported_day(data: pd.DataFrame, no_valid_register) -> go.Figure:
             text=df["quantity"],
             hovertemplate=[
                 f"{v} <br>{k}<extra></extra>"
-                for k, v in zip(df["date"], df["colleague"])
+                for k, v in zip(df["date"], df["employee"])
             ],  # Full x-values in hovertemplate
             marker=dict(
                 color=colors,  # Color hex code
@@ -103,19 +103,19 @@ def last_reported_day(data: pd.DataFrame, no_valid_register) -> go.Figure:
 
 def boxplot(data: pd.DataFrame) -> go.Figure:
     df = (
-        data[["colleague", "date", "hours"]]
-        .groupby(by=["colleague", "date"], as_index=False)
+        data[["employee", "date", "hours"]]
+        .groupby(by=["employee", "date"], as_index=False)
         .sum()
     )
 
     # Create the boxplot
     fig = go.Figure()
 
-    for colleague in df["colleague"].unique():
+    for employee in df["employee"].unique():
         fig.add_trace(
             go.Box(
-                y=df[df["colleague"] == colleague]["hours"],
-                name=colleague,
+                y=df[df["employee"] == employee]["hours"],
+                name=employee,
                 boxpoints=False,  # show all points
                 jitter=0.5,  # spread out the points
                 pointpos=-1.8,  # offset points to the left
@@ -129,21 +129,6 @@ def boxplot(data: pd.DataFrame) -> go.Figure:
         yaxis_title=translator.translate("Working hours"),
         # boxmode='group'  # group together boxes of the different traces for each value of x
         showlegend=False,
-        annotations=[
-            dict(
-                text=translator.translate(
-                    "(Some hours declared in the bank are negative.)"
-                ),
-                xref="paper",
-                yref="paper",
-                x=0.5,
-                y=1.05,  # Adjust y to position the annotation at the bottom
-                showarrow=False,
-                font=dict(size=12),
-                xanchor="center",
-                yanchor="top",
-            )
-        ],
     )
 
     return fig
@@ -154,8 +139,8 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
     Get the number of workdays and the number of filled days
     """
     df = (
-        data[["colleague", "date", "hours"]]
-        .groupby(by=["colleague", "date"], as_index=False)
+        data[["employee", "date", "hours"]]
+        .groupby(by=["employee", "date"], as_index=False)
         .sum()
     )
 
@@ -165,8 +150,8 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
     today = datetime.datetime.now().date()
 
     report = list()
-    for colleague in df["colleague"].unique():
-        view = df[df["colleague"] == colleague]
+    for employee in df["employee"].unique():
+        view = df[df["employee"] == employee]
         first_day = view["date"].min()
         weekdays = count_weekdays(first_day, today)
         reported_weekdays = len(view)
@@ -175,7 +160,7 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
 
         report.append(
             {
-                "colleague": colleague,
+                "employee": employee,
                 "first_day": first_day,
                 "weekdays": weekdays,
                 "reported_weekdays": len(view),
@@ -193,7 +178,7 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
 
     # Create traces for weekdays
     weekdays_trace_reported = go.Bar(
-        x=df["colleague"],
+        x=df["employee"],
         y=df["reported_weekdays_pct"],
         name=translator.translate("Reported<br>weekdays"),
         marker_color="green",
@@ -202,7 +187,7 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
     )
 
     weekdays_trace_non_reported = go.Bar(
-        x=df["colleague"],
+        x=df["employee"],
         y=df["non_reported_weekdays_pct"],
         name=translator.translate("Non-reported<br>weekdays"),
         marker_color="red",
@@ -215,7 +200,7 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
 
     # Create traces for workhours
     workhours_trace_reported = go.Bar(
-        x=df["colleague"],
+        x=df["employee"],
         y=df["reported_workhours_pct"],
         name=translator.translate("Reported<br>hours"),
         marker_color="green",
@@ -226,7 +211,7 @@ def reported_workhours(data: pd.DataFrame) -> go.Figure:
     )
 
     workhours_trace_non_reported = go.Bar(
-        x=df["colleague"],
+        x=df["employee"],
         y=df["non_reported_workhours_pct"],
         name=translator.translate("Non-reported<br>hours"),
         marker_color="red",

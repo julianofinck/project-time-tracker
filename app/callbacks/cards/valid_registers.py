@@ -6,19 +6,22 @@ import plotly.graph_objs as go
 from dash import Input, Output
 
 from app import app, app_state
+from app.translate.translator import translator
 
 
 @app.callback(
     Output("histogram", "figure"),
+    Output("valid-table", "columns"),
+    Output("valid-table", "data"),
     [
         Input("date-picker", "start_date"),
         Input("date-picker", "end_date"),
-        Input("colleague-selector", "value"),
+        Input("employee-selector", "value"),
         Input("project-selector", "value"),
         Input("product-selector", "value"),
     ],
 )
-def update_hist_workhours(start_date, end_date, colleague, project, product):
+def update_hist_workhours(start_date, end_date, employee, project, product):
     # TODO: Case in which data is empty
 
     # Filter date initial mask
@@ -29,15 +32,15 @@ def update_hist_workhours(start_date, end_date, colleague, project, product):
 
     # Neither project nor product selected -> show project
     if project is None and product is None:
-        if colleague is not None:
-            mask = mask & (data["colleague"] == colleague)
+        if employee is not None:
+            mask = mask & (data["employee"] == employee)
         grouped = data.loc[mask, ["project", "hours"]].groupby(["project"]).sum()
 
     # Project selected, Product is none
     elif project is not None and product is None:
         mask = mask & (data["project"] == project)
-        if colleague is not None:
-            mask = mask & (data["colleague"] == colleague)
+        if employee is not None:
+            mask = mask & (data["employee"] == employee)
 
         # CODEX case
         if project == "CODEX":
@@ -48,14 +51,14 @@ def update_hist_workhours(start_date, end_date, colleague, project, product):
     # Project is none, Product selected
     elif project is None and product is not None:
         mask = mask & (data["product"] == product)
-        if colleague is not None:
-            mask = mask & (data["colleague"] == colleague)
+        if employee is not None:
+            mask = mask & (data["employee"] == employee)
         grouped = data.loc[mask, ["activity", "hours"]].groupby(["activity"]).sum()
 
     # Project selected, Product selected
     elif project is not None and product is not None:
-        if colleague is not None:
-            mask = mask & (data["colleague"] == colleague)
+        if employee is not None:
+            mask = mask & (data["employee"] == employee)
 
         # CODEX case
         if project == "CODEX":
@@ -92,5 +95,27 @@ def update_hist_workhours(start_date, end_date, colleague, project, product):
     )
 
     # Create figure
-    figure = go.Figure(data=hist_data, layout=layout)
-    return figure
+    fig = go.Figure(data=hist_data, layout=layout)
+
+    # Get columns and data to dash_table
+    dash_data, dash_columns = get_table(data[mask])
+
+    return fig, dash_columns, dash_data
+
+
+def get_table(df):
+    # Sort by date and start time
+    df = df.sort_values(by=["employee", "date", "start_time"], ascending=[True, False, False]).copy()
+
+    # Adjust columns order
+    df = df[["employee", "line", "date", "project", "product", "activity", "hours"]]
+    df["date"] = df["date"].apply(lambda x: x.strftime("%d/%m/%Y"))
+
+    # Get columns
+    df.columns = [translator.translate(c).capitalize() for c in df.columns]
+    columns = [{"name": i, "id": i} for i in df.columns]
+
+    # Get data
+    data = df.to_dict('records')
+
+    return data, columns

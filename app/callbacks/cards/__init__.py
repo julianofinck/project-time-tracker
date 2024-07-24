@@ -1,3 +1,3 @@
 from .invalid_registers import *
-from .projects import *
+from .valid_registers import *
 from .team_commitment import *

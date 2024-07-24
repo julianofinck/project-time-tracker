@@ -63,5 +63,3 @@ hours_positive
 - Adjust README
 - Mark as invalid blockhours that are as Datetime instead of Time
 - Read Excel trigger a bug sometimes, the bar growing bar goes straight to 100% and disappears.
-- Add tables for the first card as well
-- change "pip" to "poetry"

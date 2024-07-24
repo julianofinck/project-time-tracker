@@ -3,10 +3,17 @@ from dash import dash_table, dcc, html
 from app.translate.translator import translator
 
 
+EXTERNAL_LINKS = [
+    "https://fonts.googleapis.com/css?family=Open+Sans",
+    ]
+
+def links_html(*links):
+    return [html.Link(rel="stylesheet", href=link) for link in links]
+
 class Layout:
     def __init__(self):
         pass
-        # self.colleagues_list = dropdown_lists.colleague_list
+        # self.employees_list = dropdown_lists.employee_list
         self.product_project_list = None
 
     def generate(
@@ -19,23 +26,7 @@ class Layout:
             "selected_style": {"padding": "4px"},
         }
         layout = html.Div(
-            [
-                html.Link(
-                    rel="stylesheet",
-                    href="https://fonts.googleapis.com/css?family=Open+Sans",
-                ),
-                html.Link(
-                    rel="stylesheet",
-                    href="assets/css/main.css",
-                ),
-                html.Link(
-                    rel="stylesheet",
-                    href="assets/css/custom.css",
-                ),
-                html.Link(
-                    rel="stylesheet",
-                    href="assets/css/selectors.css",
-                ),
+            links_html(*EXTERNAL_LINKS) + [
                 # Selectors
                 html.Div(
                     [
@@ -65,7 +56,7 @@ class Layout:
                         ),
                         self.dropdown_list(
                             translator.translate("Employee"),
-                            "colleague-selector",
+                            "employee-selector",
                             "50%",
                         ),
                         self.dropdown_list(
@@ -77,12 +68,14 @@ class Layout:
                     ],
                     id="selectors-container",
                 ),
-                # Widgets
+
+                # Widgets & Cards
                 html.Div(
                     [
                         # Spacer
                         html.Div(id="header-spacer"),
-                        # Working hours
+
+                        # Card - Working hours
                         html.Div(
                             [
                                 html.Div(
@@ -118,11 +111,51 @@ class Layout:
                                     className="card-title",
                                 ),
                                 dcc.Graph(id="histogram"),
+
+                                # Table
+                                html.Div(
+                                    [
+                                        html.H1(
+                                            translator.translate("Valid Records"),
+                                            id="table-title",
+                                            className="card-title",
+                                        ),
+                                        # Table
+                                        html.Div(
+                                            className='table',
+                                            children=dash_table.DataTable(
+                                                id="valid-table",
+                                                columns=[{"name": i, "id": i} for i in ["dummy"]],
+                                                data=["dummy"],
+                                                page_size=10,
+                                                style_table={
+                                                    "width": "100%",
+                                                    "overflowX": "auto",
+                                                    "height": "400px",
+                                                },
+                                                style_cell={
+                                                    "textAlign": "left",
+                                                    "padding": "5px",
+                                                    "whiteSpace": "normal",
+                                                    "overflow": "hidden",
+                                                    "textOverflow": "ellipsis",
+                                                },
+                                                style_header={
+                                                    "backgroundColor": "rgb(230, 230, 230)",
+                                                    "fontWeight": "bold",
+                                                },
+                                            ),
+                                        )
+                                    ],
+                                    id="valid-table-container",
+                                    className="card2",
+                                )
                             ],
                             id="main-analysis",
                             className="card",
                         ),
-                        # Controller-table
+                        
+                        # Card - Controller-table
                         html.Div(
                             [
                                 html.H1(
@@ -130,33 +163,38 @@ class Layout:
                                     id="controller-title",
                                     className="card-title",
                                 ),
-                                dash_table.DataTable(
-                                    id="controller-table",
-                                    columns=[{"name": i, "id": i} for i in ["dummy"]],
-                                    data=["dummy"],
-                                    page_size=10,
-                                    style_table={
-                                        "width": "100%",
-                                        "overflowX": "auto",
-                                        "height": "400px",
-                                    },
-                                    style_cell={
-                                        "textAlign": "left",
-                                        "padding": "5px",
-                                        "whiteSpace": "normal",
-                                        "overflow": "hidden",
-                                        "textOverflow": "ellipsis",
-                                    },
-                                    style_header={
-                                        "backgroundColor": "rgb(230, 230, 230)",
-                                        "fontWeight": "bold",
-                                    },
-                                ),
+                                # Table
+                                html.Div(
+                                    className='table',
+                                    children= dash_table.DataTable(
+                                        id="controller-table",
+                                        columns=[{"name": i, "id": i} for i in ["dummy"]],
+                                        data=["dummy"],
+                                        page_size=10,
+                                        style_table={
+                                            "width": "100%",
+                                            "overflowX": "auto",
+                                            "height": "400px",
+                                        },
+                                        style_cell={
+                                            "textAlign": "left",
+                                            "padding": "5px",
+                                            "whiteSpace": "normal",
+                                            "overflow": "hidden",
+                                            "textOverflow": "ellipsis",
+                                        },
+                                        style_header={
+                                            "backgroundColor": "rgb(230, 230, 230)",
+                                            "fontWeight": "bold",
+                                        },
+                                    ),
+                                )
                             ],
                             id="controller-table-container",
                             className="card",
                         ),
-                        # Commitment Histogram
+                        
+                        # Card - Commitment Histogram
                         html.Div(
                             [
                                 html.H1(
@@ -195,7 +233,7 @@ class Layout:
                             className="card",
                         ),
                     ],
-                    id="widgets-container",
+                    id="widgets-cards-container",
                 ),
             ],
         )

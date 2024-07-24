@@ -13,12 +13,12 @@ from app.translate.translator import translator
     Output("date-picker", "max_date_allowed"),
     Output("date-picker", "start_date"),
     Output("date-picker", "end_date"),
-    [Input("colleague-selector", "value")],
+    [Input("employee-selector", "value")],
 )
-def update_date_picker(colleague):
+def update_date_picker(employee):
     data = app_state.data.valid.copy()
 
-    if colleague is None:
+    if employee is None:
         today = datetime.datetime.now()
         yesterday = (today - datetime.timedelta(365)).strftime("%Y-%m-%d")
         today = today.strftime("%Y-%m-%d")
@@ -30,7 +30,7 @@ def update_date_picker(colleague):
             today,
         )
     else:
-        data = data[data["colleague"] == colleague]
+        data = data[data["employee"] == employee]
         return (
             data["date"].min().strftime("%Y-%m-%d"),
             data["date"].max().strftime("%Y-%m-%d"),
@@ -39,20 +39,20 @@ def update_date_picker(colleague):
         )
 
 
-# Colleague
+# employee
 @app.callback(
-    Output("colleague-selector", "options"),
+    Output("employee-selector", "options"),
     [
-        Input("colleague-selector", "value"),
+        Input("employee-selector", "value"),
         Input("project-selector", "value"),
         Input("product-selector", "value"),
         Input("date-picker", "start_date"),
         Input("date-picker", "end_date"),
     ],
 )
-def update_colleague_options(colleague, project, product, start_date, end_date):
-    # if colleague is not None:
-    #    return [{"label": i, "value": i} for i in [colleague]]
+def update_employee_options(employee, project, product, start_date, end_date):
+    # if employee is not None:
+    #    return [{"label": i, "value": i} for i in [employee]]
 
     # Filter date initial mask
     data = app_state.data.valid
@@ -69,7 +69,7 @@ def update_colleague_options(colleague, project, product, start_date, end_date):
         else:
             mask = mask & (data["product"] == product)
 
-    options = [{"label": i, "value": i} for i in data[mask]["colleague"].unique()]
+    options = [{"label": i, "value": i} for i in data[mask]["employee"].unique()]
     options.sort(key=lambda x: x["label"])
     return options
 
@@ -78,23 +78,23 @@ def update_colleague_options(colleague, project, product, start_date, end_date):
 @app.callback(
     Output("project-selector", "options"),
     [
-        Input("colleague-selector", "value"),
+        Input("employee-selector", "value"),
         Input("date-picker", "start_date"),
         Input("date-picker", "end_date"),
     ],
 )
-def update_project_options(colleague, start_date, end_date):
+def update_project_options(employee, start_date, end_date):
     # Filter date initial mask
     data = app_state.data.valid
     start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
     end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
     mask = (data["date"] >= start_date) & (data["date"] <= end_date)
 
-    if colleague is None:
+    if employee is None:
         projects = data[mask]["project"].dropna().unique()
     else:
         projects = (
-            data[mask & (data["colleague"] == colleague)].project.dropna().unique()
+            data[mask & (data["employee"] == employee)].project.dropna().unique()
         )
 
     projects.sort()
@@ -106,23 +106,23 @@ def update_project_options(colleague, start_date, end_date):
     Output("product-selector", "options"),
     Output("product-selector-title", "children"),
     [
-        Input("colleague-selector", "value"),
+        Input("employee-selector", "value"),
         Input("project-selector", "value"),
         Input("date-picker", "start_date"),
         Input("date-picker", "end_date"),
     ],
 )
-def update_product_options(colleague, project, start_date, end_date):
+def update_product_options(employee, project, start_date, end_date):
     # Filter date initial mask
     data = app_state.data.valid
     start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
     end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
     mask = (data["date"] >= start_date) & (data["date"] <= end_date)
 
-    if colleague is None and project is None:
+    if employee is None and project is None:
         products = data[mask]["product"].dropna().unique()
 
-    elif colleague is None and project is not None:
+    elif employee is None and project is not None:
         if project == "CODEX":
             # todo: add javascript that changes label "Produto" to "Atividade" if CODEX is picked
             products = (
@@ -133,18 +133,18 @@ def update_product_options(colleague, project, start_date, end_date):
                 data[mask & (data["project"] == project)]["product"].dropna().unique()
             )
 
-    elif colleague is not None and project is None:
+    elif employee is not None and project is None:
         products = (
-            data[mask & (data["colleague"] == colleague)]["product"].dropna().unique()
+            data[mask & (data["employee"] == employee)]["product"].dropna().unique()
         )
 
-    elif colleague is not None and project is not None:
+    elif employee is not None and project is not None:
         if project == "CODEX":
             # todo: add javascript that changes label "Produto" to "Atividade" if CODEX is picked
             products = (
                 data[
                     mask
-                    & (data["colleague"] == colleague)
+                    & (data["employee"] == employee)
                     & (data["project"] == project)
                 ]["activity"]
                 .dropna()
@@ -154,7 +154,7 @@ def update_product_options(colleague, project, start_date, end_date):
             products = (
                 data[
                     mask
-                    & (data["colleague"] == colleague)
+                    & (data["employee"] == employee)
                     & (data["project"] == project)
                 ]["product"]
                 .dropna()

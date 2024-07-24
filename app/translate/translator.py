@@ -21,7 +21,10 @@ class Translator:
         if self.language == "ENGLISH":
             return text
         else:
-            return self.translations.loc[text, self.language]
+            try:
+                return self.translations.loc[text, self.language]
+            except KeyError:
+                return self.translations.loc[text.capitalize(), self.language]
 
 
 target_language = os.getenv("LANGUAGE", "ENGLISH")

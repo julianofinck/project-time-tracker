@@ -1,0 +1,26 @@
+/* Card */
+.card-title {
+    width: 100%;
+    text-align: center;
+    height: fit-content;
+    margin: 0px;
+    padding: 1vw;
+}
+.card{
+    border-radius: 5px;
+    margin: 1vw;
+    border: 1vw;
+    padding-left: 1vw;
+    padding-right: 1vw;
+    padding-bottom: 1vw;
+    box-shadow: 2px 2px 20px rgb(0, 0, 0);
+    background-color: var(--card-background-color);
+    border-color: #7dd100;
+    color: var(--card-color);
+    outline: 2px solid #424242;
+}
+.card:hover{
+    border-color: #7dd100;
+    outline: 2px groove #bebebe;
+    color: var(--title-hover-color);
+}

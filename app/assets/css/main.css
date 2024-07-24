@@ -1,8 +1,29 @@
-/* main.css */
-:root {
-    --font: "Open Sans";
-    --html-background-color: rgb(185, 242, 166);
-    --card-background-color: #21272A;
-    --card-color: white;
-    --title-hover-color:  rgb(93, 255, 103);
+/* Main Style Definitions */
+html{
+    background-color: var(--html-background-color);
+    font-family: var(--font);
+    color: #e8e8e8;
+    font-size: 1vw;
+    display: relative;
+}
+
+/* WIDGETS CONTAINER */
+#widgets-cards-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+#header-spacer {
+    height: 4vw;
+}
+
+/* Team Commitment Histogram */
+#histogram-commitment-container {
+    padding-right: 1vw;
+    padding-left: 1vw;
+}
+#histogram-commitment {
+    margin-top: 1vw;
+    padding-right: .5vw;
+    padding-left: .5vw;
 }

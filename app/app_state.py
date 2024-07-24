@@ -23,25 +23,25 @@ class AppState:
             initials: os.path.join(apontamentos_dir, xlsx_filepath)
             for initials, xlsx_filepath in paths.items()
         }
-        self.colleague_list = None
-        self.filename_colleagues = None
+        self.employee_list = None
+        self.filename_employees = None
         self.data = Data()
 
         self.progress = 0
 
     def _filter_desired(self):
-        if self.colleague_list is not None:
-            state = self.filename_colleagues.copy()
+        if self.employee_list is not None:
+            state = self.filename_employees.copy()
             for k, vs in state.items():
-                if any([colleague in vs for colleague in self.colleague_list]):
+                if any([employee in vs for employee in self.employee_list]):
                     for v in vs.copy():
-                        if v not in self.colleague_list:
-                            self.filename_colleagues[k].remove(v)
+                        if v not in self.employee_list:
+                            self.filename_employees[k].remove(v)
                 else:
-                    del self.filename_colleagues[k]
+                    del self.filename_employees[k]
 
-    def get_colleagues(self) -> list[str]:
-        filename_colleagues = {
+    def get_employee_list(self) -> list[str]:
+        filename_employees = {
             xlsx: [
                 sheet
                 for sheet in pd.ExcelFile(xlsx).sheet_names
@@ -50,19 +50,19 @@ class AppState:
             for xlsx in self.xlsx.values()
         }
 
-        self.filename_colleagues = filename_colleagues
-        self.colleague_list = [
-            colleague
-            for colleagues in self.filename_colleagues.values()
-            for colleague in colleagues
+        self.filename_employees = filename_employees
+        self.employee_list = [
+            employee
+            for employees in self.filename_employees.values()
+            for employee in employees
         ]
         self._filter_desired()
 
-    def _get_df(self, file_name: str, colleague: str) -> pd.DataFrame:
-        # Log colleague
-        print(" >>", colleague)
+    def _get_df(self, file_name: str, employee: str) -> pd.DataFrame:
+        # Log employee
+        print(" >>", employee)
 
-        # Read Excel sheetname of the specific Colleague
+        # Read Excel sheetname of the specific employee
         first_columns = ["Data", "Projeto", "Produto", "Atividade"]
         columns = first_columns + [
             "Horário 1 - Inicio",
@@ -75,37 +75,37 @@ class AppState:
             "Horário 4 - fim",
         ]
         # Try read. If it fails, remove name from AppState, warn error, return "None"
-        df = pd.read_excel(file_name, colleague, usecols=columns)
+        df = pd.read_excel(file_name, employee, usecols=columns)
 
         # Workaround for empty dataframes (when people add news sheets inadvertently)
         if df.columns.empty:
-            self.colleague_list.remove(colleague)
-            self.filename_colleagues[file_name].remove(colleague)
+            self.employee_list.remove(employee)
+            self.filename_employees[file_name].remove(employee)
             print(
-                f" WARNING: '{colleague}' has no data. Warning: REMOVED from data importer."
+                f" WARNING: '{employee}' has no data. Warning: REMOVED from data importer."
             )
             return None
 
         # Keep row number
-        df["index"] = df.index + 2
+        df["line"] = df.index + 2
 
         # Explode activity in its block hours (explode 1:N relationships)
         lista = []
         for i in range(1, 5):
             workhour_block = df[
-                first_columns + [f"Horário {i} - Inicio", f"Horário {i} - fim", "index"]
+                first_columns + [f"Horário {i} - Inicio", f"Horário {i} - fim", "line"]
             ].copy()
             workhour_block.columns = first_columns + [
                 "Horário - Inicio",
                 "Horário - fim",
-                "index",
+                "line",
             ]
             lista.append(workhour_block)
         df = pd.concat(lista, axis=0, ignore_index=True)
 
         # Drop rows with empty values
         all_columns_null = (
-            df[[c for c in df.columns if c != "index"]].isna().all(axis=1)
+            df[[c for c in df.columns if c != "line"]].isna().all(axis=1)
         )
         df = df[~all_columns_null]
 
@@ -120,7 +120,7 @@ class AppState:
             "activity",
             "start_time",
             "end_time",
-            "index",
+            "line",
         ]
 
         # Adjust decimal to time
@@ -142,7 +142,7 @@ class AppState:
         # start_time OR end_time is NA but not all is NA
         mask_not_all_na = (
             ((df.start_time.isna()) | (df.start_time.isna()))
-            & (~df.drop(columns=["index"]).isna().all(axis=1))
+            & (~df.drop(columns=["line"]).isna().all(axis=1))
             & (df.date.isna())
         )
         mask = mask_start_time | mask_final_time | mask_not_all_na
@@ -163,8 +163,8 @@ class AppState:
         # Recover wrong registers
         df = pd.concat([df, df_wrong])
 
-        # Create "colleague"
-        df["colleague"] = colleague
+        # Create "employee"
+        df["employee"] = employee
 
         # Set index to search by controller
         df = df.sort_values(by=["date", "start_time"])
@@ -258,24 +258,24 @@ class AppState:
 
     def get_dfs(self) -> None:
         """
-        Get colleague list and set the state
+        Get employee list and set the state
         """
-        # Get colleagues
-        self.get_colleagues()
+        # Get employees
+        self.get_employee_list()
 
-        filename_colleagues = [
-            (filename, colleague)
-            for filename, colleagues in self.filename_colleagues.items()
-            for colleague in colleagues
+        filename_employees = [
+            (filename, employee)
+            for filename, employees in self.filename_employees.items()
+            for employee in employees
         ]
-        total_iterations = len(filename_colleagues)
+        total_iterations = len(filename_employees)
 
         # Get DataFrames
         ti = time.time()
         data = list()
         self.progress = 0
-        for i, (filename, colleague) in enumerate(filename_colleagues):
-            df = self._get_df(filename, colleague)
+        for i, (filename, employee) in enumerate(filename_employees):
+            df = self._get_df(filename, employee)
             if isinstance(df, pd.DataFrame):
                 data.append(df.dropna(axis=1, how="all"))
             self.progress = (i + 1) / total_iterations * 100

@@ -2,11 +2,9 @@ import datetime
 import os
 
 import pandas as pd
-import plotly.graph_objs as go
-from dash import Input, Output, State
+from dash import Input, Output
 
 from app import app, app_state
-from app.commitment_card_processor import boxplot, reported_workhours
 from app.translate.translator import translator
 
 
@@ -17,21 +15,21 @@ from app.translate.translator import translator
     [
         Input("date-picker", "start_date"),
         Input("date-picker", "end_date"),
-        Input("colleague-selector", "value"),
+        Input("employee-selector", "value"),
         Input("project-selector", "value"),
         Input("product-selector", "value"),
     ],
 )
-def update_hist_invalid_registers(start_date, end_date, colleague, project, product):
+def update_hist_invalid_registers(start_date, end_date, employee, project, product):
     invalid = app_state.data.invalid.copy()
 
-    # Filter by colleague
-    if colleague in invalid["colleague"].unique():
-        invalid = invalid[invalid["colleague"] == colleague]
+    # Filter by employee
+    if employee in invalid["employee"].unique():
+        invalid = invalid[invalid["employee"] == employee]
 
     # Adjust column order for controller
     invalid = invalid[
-        ["colleague", "index", "date", "hours", "project", "product", "activity"]
+        ["employee", "line", "date", "hours", "project", "product", "activity"]
     ]
 
     # Adjust date
@@ -41,15 +39,6 @@ def update_hist_invalid_registers(start_date, end_date, colleague, project, prod
     invalid["date"].apply(lambda x: str(x) if pd.isna(x) else str(x))
 
     # Adjust column names
-    columns = [
-        "Employee",
-        "Line",
-        "Date",
-        "Hours",
-        "Project",
-        "Product",
-        "Activity",
-    ]
-    invalid.columns = [translator.translate(c) for c in columns]
+    invalid.columns = [translator.translate(c).capitalize() for c in invalid.columns]
     columns = [{"name": i, "id": i} for i in invalid.columns]
     return invalid.to_dict("records"), columns
