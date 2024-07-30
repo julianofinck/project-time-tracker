@@ -3,7 +3,13 @@ import pickle
 
 from dash import Dash
 
-from .app_state import AppState
+from app.app_state import AppState
+
+from app.utils.logger import create_logger
+
+
+logger = create_logger("main", 20, "main.log")
+logger.info(f"Starting app... PID {os.getpid()}")
 
 # Load the extractor if it exists in cache
 if os.path.exists("app/cache/state.pickle"):
@@ -19,9 +25,9 @@ else:
 
 # Check if mock
 if os.getenv("MOCK_DATA"):
-    from app.mock.mock import mock_state
+    from app.mocks.mock import mock_state
     app_state = mock_state(app_state)
-    print("Mocked data!")
+    logger.warning("Mocked data!")
 
 
 # Create app
