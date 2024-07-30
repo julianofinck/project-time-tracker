@@ -1,6 +1,6 @@
 from dash import dash_table, dcc, html
 
-from app.translate.translator import translator
+from app.languages.translator import translator
 
 EXTERNAL_LINKS = [
     "https://fonts.googleapis.com/css?family=Open+Sans",

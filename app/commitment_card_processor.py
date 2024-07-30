@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
 
-from app.translate.translator import translator
+from app.languages.translator import translator
 
 
 def last_reported_day(data: pd.DataFrame, no_valid_register) -> go.Figure:

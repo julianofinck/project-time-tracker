@@ -15,3 +15,6 @@ company_excel_mock/*
 
 # Ignore mocks
 *_mock*
+
+# Logs
+logs/

@@ -13,7 +13,7 @@ class Translator:
 
         # Load translations
         df = pd.read_csv(
-            "app/translate/translations.csv", usecols=["ENGLISH", self.language]
+            "app/languages/translations.csv", usecols=["ENGLISH", self.language]
         )
         self.translations: pd.DataFrame = df.set_index("ENGLISH")
 

@@ -3,7 +3,7 @@ import threading
 from dash import Input, Output, State
 
 from app import app, app_state
-from app.translate.translator import translator
+from app.languages.translator import translator
 
 # Global progress variable
 progress = 0

@@ -4,7 +4,7 @@ import plotly.graph_objs as go
 from dash import Input, Output
 
 from app import app, app_state
-from app.translate.translator import translator
+from app.languages.translator import translator
 
 
 @app.callback(
