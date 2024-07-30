@@ -15,7 +15,7 @@ from openpyxl import load_workbook
 # Authenticate with SharePoint (if necessary)
 
 # Access the Excel file
-excel_url = "hhttps://imgoffice.sharepoint.com/:x:/r/sites/CodexMeioAmbiente/_layouts/15/Doc.aspx?sourcedoc=%7B8E72189C-715D-4E9D-9679-2A2C9D0A2A8D%7D&file=G_ao_K_APONTAMENTOS_OPE_2023.xlsx&action=default&mobileredirect=true"
+excel_url = "EXCEL_URL"
 response = requests.get(excel_url)
 
 # Load the Excel file
