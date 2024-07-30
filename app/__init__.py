@@ -17,6 +17,12 @@ else:
     app_state.get_dfs()
     app_state.save_state()
 
+# Check if mock
+if os.getenv("MOCK_DATA"):
+    from app.mock.mock import mock_state
+    app_state = mock_state(app_state)
+    print("Mocked data!")
+
 
 # Create app
 app = Dash(__name__)
