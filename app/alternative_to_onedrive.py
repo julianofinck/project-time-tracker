@@ -6,8 +6,8 @@ from io import BytesIO
 
 import pandas as pd
 import requests
-from office365.runtime.auth.authentication_context import AuthenticationContext
-from office365.sharepoint.client_context import ClientContext
+#from office365.runtime.auth.authentication_context import AuthenticationContext
+#from office365.sharepoint.client_context import ClientContext
 from openpyxl import load_workbook
 
 # import psycopg2
