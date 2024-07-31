@@ -5,7 +5,7 @@ This project generates dynamic analytical graphs for enterprise management using
 |---|---|---|---|---|---|
 |John|23/07/24|project1|product1.1|backend development|7.4
 
-> Names inside the repository might be in Portuguese because I developed in a way to be easily plugable to Codex workhours worksheets back in the day.
+> Names inside the repository might be in Portuguese because I developed in a way to be easily plugable to the Codex workhours worksheets back in the day.
 
 ## How to install
 ### Set the directory of the worksheets
@@ -27,7 +27,7 @@ python run.py
 ```
 
 ## How it works?
-Strong dependency on OneDrive shortcut.  
+It is strongly dependent upon OneDrive's synchronization.  
 <div style="display: flex; justify-content: center; align-items: center; height: fit-content;">
     <img src="img/flowchart.svg" alt="Flowchart" style="background-color: white; height: 200px">
 </div>
