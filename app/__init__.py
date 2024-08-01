@@ -22,7 +22,7 @@ else:
     app_state.save_state()
 
 # Check if mock
-if os.getenv("MOCK_DATA"):
+if str(os.getenv("MOCK_DATA")).lower() == "true":
     from app.mocks.mock import mock_state
 
     app_state = mock_state(app_state)
