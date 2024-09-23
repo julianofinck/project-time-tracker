@@ -26,14 +26,14 @@ def start_update(n_intervals, n_clicks, style):
     progress = app_state.progress  # 140271963898160
 
     style["width"] = f"{progress}%"
-    # print(f"n_intervals: {n_intervals}\n", f"n_clicks: {n_clicks}\n", f"style: {style}\n", f"running_thread: {running_thread}\n",)
 
     if n_clicks not in (None, 0) and not running_thread:
         threading.Thread(target=app_state.get_dfs).start()
         running_thread = True
-        return False, None, style, f"{int(progress)}%"
+        app_state.progress = 0
+        return False, None, style, f"{app_state.progress}%"
     elif running_thread and progress < 99:
-        return False, None, style, f"{int(progress)}%"
+        return False, None, style, f"{app_state.progress}%"
     elif n_intervals > 10:
         running_thread = False
         app_state.progress = 0

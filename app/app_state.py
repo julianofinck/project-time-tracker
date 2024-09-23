@@ -273,7 +273,7 @@ class AppState:
             df = self._get_df(filename, employee)
             if isinstance(df, pd.DataFrame):
                 data.append(df.dropna(axis=1, how="all"))
-            self.progress = (i + 1) / total_iterations * 100
+            self.progress = int((i + 1) / total_iterations * 100)
 
         # Concatenate to single DataFrame
         data = pd.concat(data)
