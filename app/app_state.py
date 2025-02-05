@@ -242,14 +242,28 @@ class AppState:
         return data, invalid
 
     def save_state(self):
-        # Create
-        os.makedirs("app/cache", exist_ok=True)
+        cache_folder = "app/cache"
 
-        with open("app/cache/state.pickle", "wb") as f:
+        # Create
+        os.makedirs(cache_folder, exist_ok=True)
+
+        # Save as pickle
+        with open(f"{cache_folder}/state.pickle", "wb") as f:
             pickle.dump(self, f)
 
             # For integration purposes
-            self.data.valid.to_pickle("app/cache/valid_data.pickle")
+            self.data.valid.to_pickle(f"{cache_folder}/valid_data.pickle")
+
+        # Save as .xlsx
+        folder = "/mnt/c/SharedCache"
+        if os.path.exists(folder):
+            # Remove xlsx
+            for file in os.listdir(folder):
+                if file.endswith(".xlsx"):
+                    os.remove(os.path.join(folder, file))
+        yyyymmdd = datetime.datetime.now().strftime("%Y%m%d_%H%m%S")
+        self.data.valid.to_excel(f"{folder}/{yyyymmdd}_valid.xlsx")
+        self.data.invalid.to_excel(f"{folder}/{yyyymmdd}_invalid.xlsx")
 
     def get_dfs(self) -> None:
         """

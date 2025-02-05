@@ -128,7 +128,7 @@ class Layout:
                                                     {"name": i, "id": i}
                                                     for i in ["dummy"]
                                                 ],
-                                                data=["dummy"],
+                                                data=[{"dummy": "sampleValue"}],
                                                 page_size=10,
                                                 style_table={
                                                     "width": "100%",
@@ -172,7 +172,7 @@ class Layout:
                                         columns=[
                                             {"name": i, "id": i} for i in ["dummy"]
                                         ],
-                                        data=["dummy"],
+                                        data=[{"dummy": "sampleValue"}],
                                         page_size=10,
                                         style_table={
                                             "width": "100%",
