@@ -6,7 +6,7 @@ from dash import Dash
 from app.app_state import AppState
 from app.utils.logger import create_logger
 
-logger = create_logger("main", 20, "main.log")
+logger = create_logger("main", 10, "main.log")
 logger.info(f"Starting app... PID {os.getpid()}")
 
 # Load the extractor if it exists in cache

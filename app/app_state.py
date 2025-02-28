@@ -3,28 +3,36 @@ import os
 import pickle
 import time
 from dataclasses import dataclass, field
+from app.alternative_to_onedrive import SharepointHandler
 
 import pandas as pd
 
 
+@dataclass
+class Data:
+    valid: pd.DataFrame = field(default_factory=pd.DataFrame)
+    invalid: pd.DataFrame = field(default_factory=pd.DataFrame)
+
+
 class AppState:
     def __init__(self):
-        paths = {
-            "AF": os.getenv("XLSX_AF"),
-            "GK": os.getenv("XLSX_GK"),
-            "LP": os.getenv("XLSX_LP"),
-            "RZ": os.getenv("XLSX_RZ"),
-        }
-        COMPANY_WORKHOURS_EXCELS_DIR = os.getenv("COMPANY_WORKHOURS_EXCELS_DIR")
-        self.xlsx = {
-            initials: os.path.join(COMPANY_WORKHOURS_EXCELS_DIR, xlsx_filepath)
-            for initials, xlsx_filepath in paths.items()
-        }
+        self.spHandler = SharepointHandler()
+        self.relUrl = "/sites/Codex-Operao/Documentos Compartilhados/General/"
+        self.xlsx = None
         self.employee_list = None
         self.filename_employees = None
         self.data = Data()
-
         self.progress = 0
+
+    def getSpHandlers(self) -> dict[str: pd.io.excel.ExcelFile]:
+        """ Get Sharepoint Handlers """
+        # Load the io handlers for each Excel
+        d = dict()
+        for sigla in ("AF", "GK", "LP", "RZ"):
+            d[sigla] = self.spHandler.get_excel_file(f"{self.relUrl}{os.getenv(f'XLSX_{sigla}')}")
+            print("Got io handler:", sigla)
+
+        return d
 
     def _filter_desired(self):
         if self.employee_list is not None:
@@ -39,12 +47,12 @@ class AppState:
 
     def get_employee_list(self) -> list[str]:
         filename_employees = {
-            xlsx: [
-                sheet
-                for sheet in pd.ExcelFile(xlsx).sheet_names
-                if sheet not in ["KEYS", "INÍCIO", "PowerQuery"]
+            sigla: [
+                sheet_name
+                for sheet_name in workbook.sheet_names
+                if sheet_name not in ["KEYS", "INÍCIO", "PowerQuery"]
             ]
-            for xlsx in self.xlsx.values()
+            for sigla, workbook in self.xlsx.items()
         }
 
         self.filename_employees = filename_employees
@@ -55,7 +63,7 @@ class AppState:
         ]
         self._filter_desired()
 
-    def _get_df(self, file_name: str, employee: str) -> pd.DataFrame:
+    def _get_df(self, excel_file: pd.io.excel.ExcelFile, employee: str) -> pd.DataFrame:
         # Log employee
         print(" >>", employee)
 
@@ -72,12 +80,13 @@ class AppState:
             "Horário 4 - fim",
         ]
         # Try read. If it fails, remove name from AppState, warn error, return "None"
-        df = pd.read_excel(file_name, employee, usecols=columns)
+        df = pd.read_excel(excel_file, employee, usecols=columns)
 
         # Workaround for empty dataframes (when people add news sheets inadvertently)
         if df.columns.empty:
             self.employee_list.remove(employee)
-            self.filename_employees[file_name].remove(employee)
+            sigla = "antes_era_algo_outro"
+            self.filename_employees[sigla].remove(employee)
             print(
                 f" WARNING: '{employee}' has no data. Warning: REMOVED from data importer."
             )
@@ -247,6 +256,10 @@ class AppState:
         # Create
         os.makedirs(cache_folder, exist_ok=True)
 
+        # Clean CTX from Office 365
+        self.spHandler.ctx = None
+        self.xlsx = None
+
         # Save as pickle
         with open(f"{cache_folder}/state.pickle", "wb") as f:
             pickle.dump(self, f)
@@ -270,11 +283,22 @@ class AppState:
         Get employee list and set the state
         """
         # Get employees
-        self.get_employee_list()
+        sigla__pdIoExcelHandlers = self.getSpHandlers()
 
+        # Filename
+        filename_employees = {
+            sigla: [
+                sheet_name
+                for sheet_name in workbook.sheet_names
+                if sheet_name not in ["KEYS", "INÍCIO", "PowerQuery"]
+            ]
+            for sigla, workbook in sigla__pdIoExcelHandlers.items()
+        }
+
+        # Get [(sigla, name), ...]
         filename_employees = [
             (filename, employee)
-            for filename, employees in self.filename_employees.items()
+            for filename, employees in filename_employees.items()
             for employee in employees
         ]
         total_iterations = len(filename_employees)
@@ -284,7 +308,7 @@ class AppState:
         data = list()
         self.progress = 0
         for i, (filename, employee) in enumerate(filename_employees):
-            df = self._get_df(filename, employee)
+            df = self._get_df(sigla__pdIoExcelHandlers[filename], employee)
             if isinstance(df, pd.DataFrame):
                 data.append(df.dropna(axis=1, how="all"))
             self.progress = int((i + 1) / total_iterations * 100)
@@ -293,11 +317,14 @@ class AppState:
         data = pd.concat(data)
 
         # Validate and clean
-        data, invalid = self._clean(data)
+        valid, invalid = self._clean(data)
 
         # Store in class
-        self.data.valid = data
+        self.data.valid = valid
         self.data.invalid = invalid
+
+        self.employee_list = list(valid.employee.unique()) + list(invalid.employee.unique())
+        self.employee_list.sort()
 
         # Print elapsed time
         tf = time.time()
@@ -305,12 +332,6 @@ class AppState:
 
         # Save state
         self.save_state()
-
-
-@dataclass
-class Data:
-    valid: pd.DataFrame = field(default_factory=pd.DataFrame)
-    invalid: pd.DataFrame = field(default_factory=pd.DataFrame)
 
 
 def decimal_to_time(decimal):
@@ -324,6 +345,3 @@ def decimal_to_time(decimal):
         ).time()
     except ValueError:
         return None
-
-
-str

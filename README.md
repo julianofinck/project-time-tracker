@@ -34,6 +34,9 @@ python run.py
 
 ## 🛠️ How it works?
 It is strongly dependent upon OneDrive's synchronization.  
+TODO: As of Feb 2nd, 2025; the data is accessed straight via Sharepoint's API
+
+TODO: Update This Image accordingly
 <div style="display: flex; justify-content: center; align-items: center; height: fit-content;">
     <img src="img/flowchart.svg" alt="Flowchart" style="background-color: white; height: 200px">
 </div>
