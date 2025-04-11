@@ -1,47 +1,43 @@
-# 📈⏰ Working Hours Dashboard 📊 - ([Deploy Interno](http://192.168.0.134:8050/))
+# 📈⏰ Visualizador de Apontamentos 📊 - ([Deploy Interno](http://192.168.0.134:8050/))
 [![Python 3.10.12](https://img.shields.io/badge/Python-3.10.12-yellow?style=flat&logo=python&logoColor=yellow&labelColor=&color=blue)](https://docs.python.org/3.9/)
 [![Dash 2.17.1](https://img.shields.io/badge/Dash-2.17.1-black?style=flat&logo=plotly&logoColor=black&labelColor=white&color=black)](https://www.esri.com/pt-br/arcgis/products/arcgis-pro/overview)
 [![Pandas 2.2.2](https://img.shields.io/badge/Pandas-2.2.2-red?style=flat&logo=pandas&logoColor=white&labelColor=%23130654&color=black)](https://pro.arcgis.com/en/pro-app/latest/arcpy/main/arcgis-pro-arcpy-reference.htm)
 
 
 
-This project generates dynamic analytical graphs for enterprise management using Python's Dash library. It requires Excels worksheets to be available locally. They must have the following columns.
+Esse projeto gera gráficos analíticos dinâmicos para gestão corporativa, utilizando sem seu core a biblioteca [Dash.plotly](https://dash.plotly.com/) do Python. Os dados da corporação são mantidos em arquivos Excel preenchidos diariamente pelos colaboradores, devendo ter as seguintes colunas:
 
-|employee|date|project|product|task|total hours|
-|---|---|---|---|---|---|
-|John|23/07/24|project1|product1.1|backend development|7.4
+| Colaborador | Data     | Projeto   | Produto   | Atividade                 | Horas totais |
+|-------------|----------|-----------|-----------|---------------------------|--------------|
+| João Maria  | 23/07/24 | Projeto 1 | Produto 3 | Documentação - Elaboração | 03:53        |
 
-> Names inside the repository might be in Portuguese because I developed in a way to be easily plugable to the Codex workhours worksheets back in the day.
 
-## ⬇️ How to install
-### Set the directory of the worksheets
-The company's workhours worksheets must be locally available, as by using OneDrive-Desktop to add their **cloud directory** as a shortcut at your local. Copy the local path to this mirrored local directory and paste it as the environment variable `COMPANY_WORKHOURS_EXCELS_DIR` in the `.env`.
-
-### Install project using [Poetry](https://python-poetry.org/docs/)
+## ⬇️ Como instalar
+Utilizando o [Poetry](https://python-poetry.org/docs/),
 ```shell
-# Change directory into project directory
+# Clone o repositório
+
+# Entre no diretório raiz do projeto
 cd <project-dir>
 
-# Install venv
+# Instale as dependencias
 poetry install
 
-# Activate venv
+# Ative o ambiente venv
 poetry shell
 
-# Run project
+# Execute o projeto
 python run.py
 ```
 
-## 🛠️ How it works?
-It is strongly dependent upon OneDrive's synchronization.  
-TODO: As of Feb 2nd, 2025; the data is accessed straight via Sharepoint's API
+## 🛠️ Como ele funciona?
+Desde 02/02/2025 a dependência com a sincronização do OneDrive foi resolvida, acessando diratemente as planilhas pela API do Sharepoint
 
-TODO: Update This Image accordingly
 <div style="display: flex; justify-content: center; align-items: center; height: fit-content;">
     <img src="img/flowchart.svg" alt="Flowchart" style="background-color: white; height: 200px">
 </div>
 
-## 🌳 Repository Structure 🧬
+## 🌳 Estrutura do Projeto 🧬
 <pre>.
 ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/README.md">📄 README.md</a>
 ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app">📁 app</a>
