@@ -12,9 +12,9 @@ load_dotenv()
 
 class SharepointHandler:
     def __init__(self):
-        self.url = os.getenv("SP_URL")
-        self.username = os.getenv("SP_USER")
-        self.password = os.getenv("SP_PASSWORD")
+        self.url = os.getenv("SHAREPOINT_URL")
+        self.username = os.getenv("SHAREPOINT_USER")
+        self.password = os.getenv("SHAREPOINT_PASSWORD")
         self.ctx = None
 
     def __auth__(self):

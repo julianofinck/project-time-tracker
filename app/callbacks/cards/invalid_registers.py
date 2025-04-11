@@ -25,12 +25,13 @@ def update_hist_invalid_registers(start_date, end_date, employee, project, produ
     columns = ["employee", "line", "date", "hours", "project", "product", "activity"]
 
     # Filter by employee
-    if employee in df["employee"].unique():
-        df = df[df["employee"] == employee]
-    else:
-        columns = [translator.translate(c).capitalize() for c in columns]
-        columns = [{"name": i, "id": i} for i in columns]
-        return None, columns
+    if employee:
+        if employee in df["employee"].unique():
+            df = df[df["employee"] == employee]
+        else:
+            columns = [translator.translate(c).capitalize() for c in columns]
+            columns = [{"name": i, "id": i} for i in columns]
+            return None, columns
 
     # Sort by date and start time
     df = df.sort_values(
@@ -40,9 +41,6 @@ def update_hist_invalid_registers(start_date, end_date, employee, project, produ
     # Adjust columns order
     df = df[columns]
 
-    # Get columns
-    df.columns = [translator.translate(c).capitalize() for c in df.columns]
-    columns = [{"name": i, "id": i} for i in df.columns]
 
     # Adjust date
     df["date"] = df["date"].apply(
@@ -50,6 +48,9 @@ def update_hist_invalid_registers(start_date, end_date, employee, project, produ
     )
     df["date"] = df["date"].apply(lambda x: str(x) if pd.isna(x) else str(x))
 
+    # Get columns
+    df.columns = [translator.translate(c).capitalize() for c in df.columns]
+    columns = [{"name": i, "id": i} for i in df.columns]
 
     # Get data
     data = df.to_dict("records")
