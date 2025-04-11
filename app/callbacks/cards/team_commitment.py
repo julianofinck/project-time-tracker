@@ -27,7 +27,7 @@ def update_hist_commitment(
 
     # Get employees with only invalid registers
     eir = [
-        employee 
+        employee
         for employee in app_state.employee_list
         if employee not in list(data.valid.employee.unique())
     ]
@@ -36,8 +36,7 @@ def update_hist_commitment(
     df = data.valid
     former_employees = os.getenv("FORMER_EMPLOYEES")
     former_employees = [
-        e.strip() 
-        for e in former_employees.replace(" e ", ", ").split(",")
+        e.strip() for e in former_employees.replace(" e ", ", ").split(",")
     ]
     df = df[~df["employee"].isin(former_employees)].reset_index(drop=True)
 

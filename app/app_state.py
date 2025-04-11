@@ -3,9 +3,10 @@ import os
 import pickle
 import time
 from dataclasses import dataclass, field
-from app.alternative_to_onedrive import SharepointHandler
 
 import pandas as pd
+
+from app.alternative_to_onedrive import SharepointHandler
 
 
 @dataclass
@@ -24,12 +25,14 @@ class AppState:
         self.data = Data()
         self.progress = 0
 
-    def getSpHandlers(self) -> dict[str: pd.io.excel.ExcelFile]:
-        """ Get Sharepoint Handlers """
+    def getSpHandlers(self) -> dict[str : pd.io.excel.ExcelFile]:
+        """Get Sharepoint Handlers"""
         # Load the io handlers for each Excel
         d = dict()
         for sigla in ("AF", "GK", "LP", "RZ"):
-            d[sigla] = self.spHandler.get_excel_file(f"{self.relUrl}{os.getenv(f'XLSX_{sigla}')}")
+            d[sigla] = self.spHandler.get_excel_file(
+                f"{self.relUrl}{os.getenv(f'XLSX_{sigla}')}"
+            )
             print("Got io handler:", sigla)
 
         return d
@@ -323,7 +326,9 @@ class AppState:
         self.data.valid = valid
         self.data.invalid = invalid
 
-        self.employee_list = list(valid.employee.unique()) + list(invalid.employee.unique())
+        self.employee_list = list(valid.employee.unique()) + list(
+            invalid.employee.unique()
+        )
         self.employee_list.sort()
 
         # Print elapsed time
