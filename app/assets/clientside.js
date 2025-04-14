@@ -23,7 +23,7 @@ function matchSpacerHeight() {
 function waitAndMatchHeight() {
     const selectors = document.getElementById("selectors-container");
     if (!selectors) {
-        setTimeout(waitAndMatchHeight, 100);
+        setTimeout(waitAndMatchHeight, 500);
         return;
     }
     matchSpacerHeight();

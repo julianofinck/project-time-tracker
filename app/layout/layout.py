@@ -90,7 +90,7 @@ class Layout:
                                             ),
                                             html.Div(
                                                 html.Button(
-                                                    translator.translate("Read Excels"),
+                                                    translator.translate("Read Sharepoint"),
                                                     id="update-button",
                                                 ),
                                                 style={"width": "fit-content"},
