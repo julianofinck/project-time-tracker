@@ -18,12 +18,13 @@ from app.languages.translator import translator
         Input("project-selector", "value"),
         Input("product-selector", "value"),
     ],
+    prevent_initial_call=True
 )
 def update_hist_workhours(start_date, end_date, employee, project, product):
     # TODO: Case in which data is empty
 
     # Filter date initial mask
-    data = app_state.data.valid
+    data = app_state.data.valid.copy()
     start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
     end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
     mask = (data["date"] >= start_date) & (data["date"] <= end_date)

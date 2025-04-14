@@ -1,12 +1,14 @@
 /* Card */
 .card-title {
-    width: 100%;
     text-align: center;
     height: fit-content;
     margin: 0px;
     padding: 1vw;
 }
 .card{
+    width: 96vw;
+    box-sizing: border-box;
+
     border-radius: 5px;
     margin: 1vw;
     border: 1vw;

@@ -41,7 +41,6 @@ def update_hist_invalid_registers(start_date, end_date, employee, project, produ
     # Adjust columns order
     df = df[columns]
 
-
     # Adjust date
     df["date"] = df["date"].apply(
         lambda x: x.date() if isinstance(x, datetime.datetime) else x

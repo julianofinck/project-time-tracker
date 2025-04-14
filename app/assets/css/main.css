@@ -13,9 +13,6 @@ html{
     flex-direction: column;
     justify-content: space-evenly;
 }
-#header-spacer {
-    height: 4vw;
-}
 
 /* Team Commitment Histogram */
 #histogram-commitment-container {

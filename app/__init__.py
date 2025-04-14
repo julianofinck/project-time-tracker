@@ -40,3 +40,12 @@ app.layout = generated_layout
 
 # Add callbacks
 from app.callbacks import *
+
+
+from dash import ClientsideFunction
+
+app.clientside_callback(
+    ClientsideFunction(namespace="clientside", function_name="reloadPage"),
+    Output("page-location", "pathname"),
+    Input("reload-flag", "data")
+)

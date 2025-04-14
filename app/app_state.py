@@ -3,10 +3,8 @@ import os
 import pickle
 import time
 from dataclasses import dataclass, field
-
 import pandas as pd
-
-from app.alternative_to_onedrive import SharepointHandler
+from app.utils.sharepointHandler import SharepointHandler
 
 
 @dataclass

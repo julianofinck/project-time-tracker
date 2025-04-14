@@ -1,4 +1,4 @@
-from dash import dash_table, dcc, html
+from dash import dcc, html
 import dash_ag_grid as dag
 
 from app.languages.translator import translator
@@ -30,176 +30,186 @@ class Layout:
         layout = html.Div(
             links_html(*EXTERNAL_LINKS)
             + [
-                # Selectors
-                html.Div(
-                    [
-                        html.Div(
-                            [
-                                html.P(
-                                    translator.translate("Period of Interest"),
-                                    id="dropdown-title",
-                                    className="selector-title",
-                                ),
-                                dcc.DatePickerRange(
-                                    min_date_allowed="2022-01-01",
-                                    max_date_allowed="2022-12-31",
-                                    start_date="2022-01-01",
-                                    end_date="2022-12-31",
-                                    display_format="DD/MM/YYYY",
-                                    id="date-picker",
-                                    className="selector-content",
-                                    style={
-                                        "width": "100%",
-                                    },
-                                ),
-                            ],
-                            id="date-picker-container",
-                            className="selector",
-                            style={"width": "30%"},
-                        ),
-                        self.dropdown_list(
-                            translator.translate("Employee"),
-                            "employee-selector",
-                            "50%",
-                        ),
-                        self.dropdown_list(
-                            translator.translate("Project"), "project-selector", "50%"
-                        ),
-                        self.dropdown_list(
-                            translator.translate("Product"), "product-selector", "100%"
-                        ),
-                    ],
-                    id="selectors-container",
-                ),
-                # Widgets & Cards
-                html.Div(
-                    [
-                        # Spacer
-                        html.Div(id="header-spacer"),
-                        # Card - Working hours
-                        html.Div(
-                            [
-                                html.Div(
-                                    [
-                                        dcc.Interval(
-                                            id="interval-component",
-                                            interval=1000,
-                                            n_intervals=0,
-                                        ),
-                                        html.Div(
-                                            html.Button(
-                                                translator.translate("Read Excels"),
-                                                id="update-button",
+                html.Div([
+                    # Selectors
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.P(
+                                        translator.translate("Period of Interest"),
+                                        id="dropdown-title",
+                                        className="selector-title",
+                                    ),
+                                    dcc.DatePickerRange(
+                                        min_date_allowed="2022-01-01",
+                                        max_date_allowed="2022-12-31",
+                                        start_date="2022-01-01",
+                                        end_date="2022-12-31",
+                                        display_format="DD/MM/YYYY",
+                                        id="date-picker",
+                                        className="selector-content",
+                                        style={
+                                            "width": "100%",
+                                        },
+                                    ),
+                                ],
+                                id="date-picker-container",
+                                className="selector",
+                                style={"width": "30%"},
+                            ),
+                            self.dropdown_list(
+                                translator.translate("Employee"),
+                                "employee-selector",
+                                "50%",
+                            ),
+                            self.dropdown_list(
+                                translator.translate("Project"), "project-selector", "50%"
+                            ),
+                            self.dropdown_list(
+                                translator.translate("Product"), "product-selector", "100%"
+                            ),
+                        ],
+                        id="selectors-container",
+                    ),
+                    # Widgets & Cards
+                    html.Div(
+                        [
+                            # Spacer
+                            html.Div(id="header-spacer"),
+                            # Card - Working hours
+                            html.Div(
+                                [
+                                    html.Div(
+                                        [
+                                            dcc.Location(id="page-location", refresh=True),
+                                            dcc.Interval(
+                                                id="interval-component",
+                                                interval=1000,
+                                                n_intervals=0,
                                             ),
-                                            style={"width": "fit-content"},
-                                        ),
-                                        # This style must be set here. If set in .css, callback funciton wont get it
-                                        html.Div(
-                                            html.Div(id="progress-text"),
-                                            id="update-bar-loading",
-                                            style={
-                                                "width": "0%",
-                                                "height": "fit-content",
-                                                "backgroundColor": "green",
-                                            },
-                                        ),
-                                    ],
-                                    id="update-area",
-                                ),
-                                html.H1(
-                                    translator.translate("Workhours Viewer"),
-                                    id="title",
-                                    className="card-title",
-                                ),
-                                dcc.Graph(id="histogram"),
-                                # Table
-                                html.Div(
-                                    [
-                                        html.H1(
-                                            translator.translate("Valid Records"),
-                                            id="table-title",
-                                            className="card-title",
-                                        ),
-                                        # Table
-                                        dag.AgGrid(
-                                            id="valid-table",
-                                            columnDefs=[{"field": "dummy"}],
-                                            rowData=[{"dummy": 1}],
-                                            columnSize="responsiveSizeToFit",
-                                            defaultColDef={"filter": True},
-                                            dashGridOptions={"pagination": True, "animateRows": False},
-                                        )
-                                    ]
-                                   ,
-                                    id="valid-table-container",
-                                    className="card2",
-                                ),
-                            ],
-                            id="main-analysis",
-                            className="card",
-                        ),
-                        # Card - Controller-table
-                        html.Div(
-                            [
-                                html.H1(
-                                    translator.translate("Invalid Records"),
-                                    id="controller-title",
-                                    className="card-title",
-                                ),
-                                # Table
-                                dag.AgGrid(
-                                    id="controller-table",
-                                    columnDefs=[{"field": "dummy"}],
-                                    rowData=[{"dummy": 1}],
-                                    columnSize="responsiveSizeToFit",
-                                    defaultColDef={"filter": True},
-                                    dashGridOptions={"pagination": True, "animateRows": False},
-                                )
-                            ],
-                            id="controller-table-container",
-                            className="card",
-                        ),
-                        # Card - Commitment Histogram
-                        html.Div(
-                            [
-                                html.H1(
-                                    translator.translate("Team Commitment"),
-                                    id="histogram-commitment-title",
-                                    className="card-title",
-                                ),
-                                dcc.Tabs(
-                                    [
-                                        dcc.Tab(
-                                            label=translator.translate(
-                                                "Last Filled Day"
+                                            html.Div(
+                                                html.Button(
+                                                    translator.translate("Read Excels"),
+                                                    id="update-button",
+                                                ),
+                                                style={"width": "fit-content"},
                                             ),
-                                            value="last-reported-day",
-                                            **tab_commons,
-                                        ),
-                                        dcc.Tab(
-                                            label=translator.translate("Boxplot"),
-                                            value="boxplot",
-                                            **tab_commons,
-                                        ),
-                                        dcc.Tab(
-                                            label=translator.translate(
-                                                "Worked/Elapsed"
+                                            # This style must be set here. If set in .css, callback funciton wont get it
+                                            html.Div(
+                                                html.Div(id="progress-text"),
+                                                id="update-bar-loading",
+                                                style={
+                                                    "width": "0%",
+                                                    "height": "fit-content",
+                                                    "backgroundColor": "green",
+                                                },
                                             ),
-                                            value="elapsed-reported",
-                                            **tab_commons,
-                                        ),
-                                    ],
-                                    id="tabs-container",
-                                    value="last-reported-day",
-                                ),
-                                dcc.Graph(id="histogram-commitment"),
-                            ],
-                            id="histogram-commitment-container",
-                            className="card",
-                        ),
-                    ],
-                    id="widgets-cards-container",
-                ),
+                                            dcc.Store(id="reload-flag", data={"reload": False})
+                                        ],
+                                        id="update-area",
+                                    ),
+                                    html.H1(
+                                        translator.translate("Workhours Viewer"),
+                                        id="title",
+                                        className="card-title",
+                                    ),
+                                    dcc.Graph(id="histogram"),
+                                    # Table
+                                    html.Div(
+                                        [
+                                            html.H1(
+                                                translator.translate("Valid Records"),
+                                                id="table-title",
+                                                className="card-title",
+                                            ),
+                                            # Table
+                                            dag.AgGrid(
+                                                id="valid-table",
+                                                columnDefs=[{"field": "dummy"}],
+                                                rowData=[{"dummy": 1}],
+                                                columnSize="responsiveSizeToFit",
+                                                defaultColDef={"filter": True},
+                                                dashGridOptions={
+                                                    "pagination": True,
+                                                    "animateRows": False,
+                                                },
+                                            ),
+                                        ],
+                                        id="valid-table-container",
+                                        className="card2",
+                                    ),
+                                ],
+                                id="main-analysis",
+                                className="card",
+                            ),
+                            # Card - Controller-table
+                            html.Div(
+                                [
+                                    html.H1(
+                                        translator.translate("Invalid Records"),
+                                        id="controller-title",
+                                        className="card-title",
+                                    ),
+                                    # Table
+                                    dag.AgGrid(
+                                        id="controller-table",
+                                        columnDefs=[{"field": "dummy"}],
+                                        rowData=[{"dummy": 1}],
+                                        columnSize="responsiveSizeToFit",
+                                        defaultColDef={"filter": True},
+                                        dashGridOptions={
+                                            "pagination": True,
+                                            "animateRows": False,
+                                        },
+                                    ),
+                                ],
+                                id="controller-table-container",
+                                className="card",
+                            ),
+                            # Card - Commitment Histogram
+                            html.Div(
+                                [
+                                    html.H1(
+                                        translator.translate("Team Commitment"),
+                                        id="histogram-commitment-title",
+                                        className="card-title",
+                                    ),
+                                    dcc.Tabs(
+                                        [
+                                            dcc.Tab(
+                                                label=translator.translate(
+                                                    "Last Filled Day"
+                                                ),
+                                                value="last-reported-day",
+                                                **tab_commons,
+                                            ),
+                                            dcc.Tab(
+                                                label=translator.translate("Boxplot"),
+                                                value="boxplot",
+                                                **tab_commons,
+                                            ),
+                                            dcc.Tab(
+                                                label=translator.translate(
+                                                    "Worked/Elapsed"
+                                                ),
+                                                value="elapsed-reported",
+                                                **tab_commons,
+                                            ),
+                                        ],
+                                        id="tabs-container",
+                                        value="last-reported-day",
+                                    ),
+                                    dcc.Graph(id="histogram-commitment"),
+                                ],
+                                id="histogram-commitment-container",
+                                className="card",
+                            ),
+                        ],
+                        id="widgets-cards-container",
+                    ),
+                    ], id="main-div"
+                )
             ],
         )
 

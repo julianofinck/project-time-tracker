@@ -4,8 +4,7 @@ import plotly.graph_objs as go
 from dash import Input, Output
 
 from app import app, app_state
-from app.commitment_card_processor import (boxplot, last_reported_day,
-                                           reported_workhours)
+from app.commitment_card_processor import boxplot, last_reported_day, reported_workhours
 
 
 # Commitment-Histogram

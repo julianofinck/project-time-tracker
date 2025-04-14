@@ -6,3 +6,10 @@
     --card-color: white;
     --title-hover-color:  rgb(93, 255, 103);
 }
+
+#main-div {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* adds spacing between child divs */
+    align-items: flex-start; /* or center, or stretch */
+}
