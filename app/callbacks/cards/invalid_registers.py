@@ -9,8 +9,8 @@ from app.languages.translator import translator
 
 # Controller - Invalid Registers
 @app.callback(
-    Output("controller-table", "data"),
-    Output("controller-table", "columns"),
+    Output("controller-table", "rowData"),
+    Output("controller-table", "columnDefs"),
     [
         Input("date-picker", "start_date"),
         Input("date-picker", "end_date"),
@@ -50,7 +50,7 @@ def update_hist_invalid_registers(start_date, end_date, employee, project, produ
 
     # Get columns
     df.columns = [translator.translate(c).capitalize() for c in df.columns]
-    columns = [{"name": i, "id": i} for i in df.columns]
+    columns = [{"field": c} for c in df.columns]
 
     # Get data
     data = df.to_dict("records")

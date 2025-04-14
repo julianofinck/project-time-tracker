@@ -9,8 +9,8 @@ from app.languages.translator import translator
 
 @app.callback(
     Output("histogram", "figure"),
-    Output("valid-table", "columns"),
-    Output("valid-table", "data"),
+    Output("valid-table", "columnDefs"),
+    Output("valid-table", "rowData"),
     [
         Input("date-picker", "start_date"),
         Input("date-picker", "end_date"),
@@ -115,7 +115,7 @@ def get_table(df):
 
     # Get columns
     df.columns = [translator.translate(c).capitalize() for c in df.columns]
-    columns = [{"name": i, "id": i} for i in df.columns]
+    columns = [{"field": c} for c in df.columns]
 
     # Get data
     data = df.to_dict("records")

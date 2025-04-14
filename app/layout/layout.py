@@ -1,4 +1,5 @@
 from dash import dash_table, dcc, html
+import dash_ag_grid as dag
 
 from app.languages.translator import translator
 
@@ -120,35 +121,16 @@ class Layout:
                                             className="card-title",
                                         ),
                                         # Table
-                                        html.Div(
-                                            className="table",
-                                            children=dash_table.DataTable(
-                                                id="valid-table",
-                                                columns=[
-                                                    {"name": i, "id": i}
-                                                    for i in ["dummy"]
-                                                ],
-                                                data=[{"dummy": "sampleValue"}],
-                                                page_size=10,
-                                                style_table={
-                                                    "width": "100%",
-                                                    "overflowX": "auto",
-                                                    "height": "400px",
-                                                },
-                                                style_cell={
-                                                    "textAlign": "left",
-                                                    "padding": "5px",
-                                                    "whiteSpace": "normal",
-                                                    "overflow": "hidden",
-                                                    "textOverflow": "ellipsis",
-                                                },
-                                                style_header={
-                                                    "backgroundColor": "rgb(230, 230, 230)",
-                                                    "fontWeight": "bold",
-                                                },
-                                            ),
-                                        ),
-                                    ],
+                                        dag.AgGrid(
+                                            id="valid-table",
+                                            columnDefs=[{"field": "dummy"}],
+                                            rowData=[{"dummy": 1}],
+                                            columnSize="responsiveSizeToFit",
+                                            defaultColDef={"filter": True},
+                                            dashGridOptions={"pagination": True, "animateRows": False},
+                                        )
+                                    ]
+                                   ,
                                     id="valid-table-container",
                                     className="card2",
                                 ),
@@ -165,33 +147,14 @@ class Layout:
                                     className="card-title",
                                 ),
                                 # Table
-                                html.Div(
-                                    className="table",
-                                    children=dash_table.DataTable(
-                                        id="controller-table",
-                                        columns=[
-                                            {"name": i, "id": i} for i in ["dummy"]
-                                        ],
-                                        data=[{"dummy": "sampleValue"}],
-                                        page_size=10,
-                                        style_table={
-                                            "width": "100%",
-                                            "overflowX": "auto",
-                                            "height": "400px",
-                                        },
-                                        style_cell={
-                                            "textAlign": "left",
-                                            "padding": "5px",
-                                            "whiteSpace": "normal",
-                                            "overflow": "hidden",
-                                            "textOverflow": "ellipsis",
-                                        },
-                                        style_header={
-                                            "backgroundColor": "rgb(230, 230, 230)",
-                                            "fontWeight": "bold",
-                                        },
-                                    ),
-                                ),
+                                dag.AgGrid(
+                                    id="controller-table",
+                                    columnDefs=[{"field": "dummy"}],
+                                    rowData=[{"dummy": 1}],
+                                    columnSize="responsiveSizeToFit",
+                                    defaultColDef={"filter": True},
+                                    dashGridOptions={"pagination": True, "animateRows": False},
+                                )
                             ],
                             id="controller-table-container",
                             className="card",
