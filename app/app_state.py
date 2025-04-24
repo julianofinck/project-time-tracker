@@ -206,8 +206,8 @@ class AppState:
         product_is_string = data["product"].apply(lambda x: isinstance(x, str))
         activity_not_empty = ~data["activity"].isna()
         activity_is_string = data["activity"].apply(lambda x: isinstance(x, str))
-        activity_not_codex = ~data["activity"].fillna("dummy").str.contains("Codex")
-        activity_not_growth = ~data["activity"].fillna("dummy").str.contains("Growth")
+        activity_not_codex = ~data["activity"].fillna("Loading...").str.contains("Codex")
+        activity_not_growth = ~data["activity"].fillna("Loading...").str.contains("Growth")
         hours_positive = data["hours"] > 0
         valid_project = (
             date_is_datetime_not_na

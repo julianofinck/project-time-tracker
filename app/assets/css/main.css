@@ -14,6 +14,12 @@ html{
     justify-content: space-evenly;
 }
 
+/* Histogram */
+.histogram .main-svg {
+    border-radius: 3px;
+    overflow: hidden;
+}
+
 /* Team Commitment Histogram */
 #histogram-commitment-container {
     padding-right: 1vw;

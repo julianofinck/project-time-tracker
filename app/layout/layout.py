@@ -114,7 +114,7 @@ class Layout:
                                         id="title",
                                         className="card-title",
                                     ),
-                                    dcc.Graph(id="histogram"),
+                                    dcc.Graph(id="histogram", className="histogram"),
                                     # Table
                                     html.Div(
                                         [
@@ -126,8 +126,8 @@ class Layout:
                                             # Table
                                             dag.AgGrid(
                                                 id="valid-table",
-                                                columnDefs=[{"field": "dummy"}],
-                                                rowData=[{"dummy": 1}],
+                                                columnDefs=[{"field": "Loading..."}],
+                                                rowData=[{"Loading...": 1}],
                                                 columnSize="responsiveSizeToFit",
                                                 defaultColDef={"filter": True},
                                                 dashGridOptions={
@@ -154,8 +154,8 @@ class Layout:
                                     # Table
                                     dag.AgGrid(
                                         id="controller-table",
-                                        columnDefs=[{"field": "dummy"}],
-                                        rowData=[{"dummy": 1}],
+                                        columnDefs=[{"field": "Loading..."}],
+                                        rowData=[{"Loading...": 1}],
                                         columnSize="responsiveSizeToFit",
                                         defaultColDef={"filter": True},
                                         dashGridOptions={
@@ -200,7 +200,7 @@ class Layout:
                                         id="tabs-container",
                                         value="last-reported-day",
                                     ),
-                                    dcc.Graph(id="histogram-commitment"),
+                                    dcc.Graph(id="histogram-commitment", className="histogram"),
                                 ],
                                 id="histogram-commitment-container",
                                 className="card",
