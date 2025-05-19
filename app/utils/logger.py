@@ -10,6 +10,45 @@ import logging
 import os
 import sys
 
+def start_it():
+    # Start Logging
+    root = logging.getLogger("")
+
+    # Set up basic logging configuration
+    lvl = logging.INFO
+    fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    root.propagate = True
+
+    fmter = logging.Formatter(fmt)
+    root.setLevel(lvl)
+
+    # Adjust the default logging stream handler
+    if not root.handlers:
+        stream_handler = logging.StreamHandler(sys.stdout)
+        add_stream_handler = True
+    else:
+        stream_handler, = root.handlers
+        add_stream_handler = False
+    stream_handler.setLevel(lvl)
+    stream_handler.setFormatter(fmter)
+    stream_handler.stream = open(
+        sys.stdout.fileno(), mode="w", encoding="utf-8", buffering=1
+    )
+    if add_stream_handler:
+        root.addHandler(stream_handler)
+
+    # Add file handler
+    logfile = os.getenv("LOGFILE")
+    os.makedirs(os.path.dirname(logfile), exist_ok=True)
+
+    # TODO: Clean up older than 4 weeks
+
+    file_handler = logging.FileHandler(logfile, encoding="utf-8")
+    file_handler.setLevel(lvl)
+    file_handler.setFormatter(fmter)
+    root.addHandler(file_handler)
+
+    root.info(f"Start PID {os.getpid()}!")
 
 def create_logger(
     logger_name: str = "main", level=logging.DEBUG, log_file=None, cleanroot=False

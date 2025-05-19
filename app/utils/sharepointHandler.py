@@ -1,5 +1,6 @@
 import io
 import os
+import logging
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -9,6 +10,8 @@ from office365.sharepoint.files.file import File
 
 load_dotenv()
 
+
+log = logging.getLogger(__name__)
 
 class SharepointHandler:
     def __init__(self):
@@ -24,9 +27,9 @@ class SharepointHandler:
             web = ctx.web
             ctx.load(web)
             ctx.execute_query()
-            print("Web title: {0}".format(web.properties["Title"]))
+            log.info("Web title: {0}".format(web.properties["Title"]))
         else:
-            print(ctx_auth.get_last_error())
+            log.info(ctx_auth.get_last_error())
 
         self.ctx = ctx
 

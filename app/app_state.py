@@ -2,9 +2,13 @@ import datetime
 import os
 import pickle
 import time
+import logging
 from dataclasses import dataclass, field
 import pandas as pd
 from app.utils.sharepointHandler import SharepointHandler
+
+
+log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -22,16 +26,18 @@ class AppState:
         self.filename_employees = None
         self.data = Data()
         self.progress = 0
+        self.keys = None
 
     def getSpHandlers(self) -> dict[str : pd.io.excel.ExcelFile]:
         """Get Sharepoint Handlers"""
+        log.info(f"Getting SharePoint IO Handlers...")
         # Load the io handlers for each Excel
         d = dict()
         for sigla in ("AF", "GK", "LP", "RZ"):
             d[sigla] = self.spHandler.get_excel_file(
                 f"{self.relUrl}{os.getenv(f'XLSX_{sigla}')}"
             )
-            print("Got io handler:", sigla)
+            log.info(f"Got io handler: {sigla}")
 
         return d
 
@@ -63,10 +69,14 @@ class AppState:
             for employee in employees
         ]
         self._filter_desired()
+    
+    def get_keys(self, io_handler: pd.io.excel.ExcelFile):
+        df = pd.read_excel(io_handler, "KEYS")
+        print("developing")
 
     def _get_df(self, excel_file: pd.io.excel.ExcelFile, employee: str) -> pd.DataFrame:
         # Log employee
-        print(" >>", employee)
+        log.info(f"Reading the table of '{employee}'")
 
         # Read Excel sheetname of the specific employee
         first_columns = ["Data", "Projeto", "Produto", "Atividade"]
@@ -88,7 +98,7 @@ class AppState:
             self.employee_list.remove(employee)
             sigla = "antes_era_algo_outro"
             self.filename_employees[sigla].remove(employee)
-            print(
+            log.info(
                 f" WARNING: '{employee}' has no data. Warning: REMOVED from data importer."
             )
             return None
@@ -286,6 +296,8 @@ class AppState:
         # Get employees
         sigla__pdIoExcelHandlers = self.getSpHandlers()
 
+        self.get_keys(sigla__pdIoExcelHandlers["AF"])
+
         # Filename
         filename_employees = {
             sigla: [
@@ -329,9 +341,10 @@ class AppState:
         )
         self.employee_list.sort()
 
-        # Print elapsed time
+        # Log elapsed time
         tf = time.time()
-        print("Elapsed time:", int(tf - ti), "s")
+        eta = int(tf - ti)
+        log.info(f"Elapsed time: {eta} s")
 
         # Save state
         self.save_state()
