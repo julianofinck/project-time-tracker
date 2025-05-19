@@ -268,7 +268,7 @@ class AppState:
         os.makedirs(cache_folder, exist_ok=True)
 
         # Clean CTX from Office 365
-        self.spHandler.ctx = None
+        self.spHandler.client_context = None
         self.xlsx = None
 
         # Save as pickle
