@@ -6,6 +6,7 @@ import logging
 from dataclasses import dataclass, field
 import pandas as pd
 from app.utils.sharepointHandler import SharepointHandler
+from pandas.io.excel import ExcelFile
 
 
 log = logging.getLogger(__name__)
@@ -28,7 +29,7 @@ class AppState:
         self.progress = 0
         self.keys = None
 
-    def getSpHandlers(self) -> dict[str : pd.io.excel.ExcelFile]:
+    def getSpHandlers(self) -> dict[str, ExcelFile]:
         """Get Sharepoint Handlers"""
         log.info(f"Getting SharePoint IO Handlers...")
         # Load the io handlers for each Excel
@@ -52,7 +53,7 @@ class AppState:
                 else:
                     del self.filename_employees[k]
 
-    def get_employee_list(self) -> list[str]:
+    def get_employee_list(self) -> list[str | None]:
         filename_employees = {
             sigla: [
                 sheet_name
@@ -70,11 +71,11 @@ class AppState:
         ]
         self._filter_desired()
     
-    def get_keys(self, io_handler: pd.io.excel.ExcelFile):
+    def get_keys(self, io_handler: ExcelFile):
         df = pd.read_excel(io_handler, "KEYS")
         print("developing")
 
-    def _get_df(self, excel_file: pd.io.excel.ExcelFile, employee: str) -> pd.DataFrame:
+    def _get_df(self, excel_file: ExcelFile, employee: str) -> pd.DataFrame | None:
         # Log employee
         log.info(f"Reading the table of '{employee}'")
 
@@ -321,7 +322,7 @@ class AppState:
         data = list()
         self.progress = 0
         for i, (filename, employee) in enumerate(filename_employees):
-            df = self._get_df(sigla__pdIoExcelHandlers[filename], employee)
+            df = self._get_df(sigla__pdIoExcelHandlers[filename], str(employee))
             if isinstance(df, pd.DataFrame):
                 data.append(df.dropna(axis=1, how="all"))
             self.progress = int((i + 1) / total_iterations * 100)
