@@ -18,27 +18,45 @@ class SharepointHandler:
         self.url = os.getenv("SHAREPOINT_URL")
         self.username = os.getenv("SHAREPOINT_USER")
         self.password = os.getenv("SHAREPOINT_PASSWORD")
-        self.ctx = None
+        self.client_context = None
 
     def __auth__(self):
-        ctx_auth = AuthenticationContext(self.url)
-        if ctx_auth.acquire_token_for_user(self.username, self.password):
-            ctx = ClientContext(self.url, ctx_auth)
-            web = ctx.web
-            ctx.load(web)
-            ctx.execute_query()
-            log.info("Web title: {0}".format(web.properties["Title"]))
-        else:
-            log.info(ctx_auth.get_last_error())
+        try:
+            client_context_auth = AuthenticationContext(self.url)
+            if not client_context_auth.acquire_token_for_user(self.username, self.password):
+                log.exception(f"Authentication failed: {client_context_auth.get_last_error()}")
 
-        self.ctx = ctx
+            client_context = ClientContext(self.url, client_context_auth)
+
+            # Get the current user
+            current_user = client_context.web.current_user
+            client_context.load(current_user)
+            client_context.execute_query()
+
+
+            web = client_context.web
+            user = client_context.web.current_user
+
+            client_context.load(web, ["Title"]) 
+            client_context.load(user)
+            client_context.execute_query()
+
+            log.info(f"Accessed SharePoint site: '{web.properties['Title']}' at {self.url}")
+            log.info(f"Logged in as '{user.properties['Title']}' ({user.properties['LoginName']})")
+
+        except Exception as e:
+            print(e)
+            log.exception(f"Authentication failed: {client_context_auth.get_last_error()}")
+            raise RuntimeError("Auth error!")
+
+        self.client_context = client_context
 
     def get_excel_file(self, relative_url):
         # Get context if it does not exist
-        if not self.ctx:
+        if not self.client_context:
             self.__auth__()
 
-        response = File.open_binary(self.ctx, relative_url)
+        response = File.open_binary(self.client_context, relative_url)
         bytes_file_obj = io.BytesIO()
         bytes_file_obj.write(response.content)
         bytes_file_obj.seek(0)

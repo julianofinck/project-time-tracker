@@ -26,8 +26,12 @@ poetry install
 # Ative o ambiente venv
 poetry shell
 
-# Execute o projeto
-python run.py
+# [SUBIR A APLICAÇÃO]
+# Modo DEBUG
+python run_server_debug.py
+
+# Modo PRODUÇÃO
+./run_server.sh
 ```
 
 ## 🛠️ Como ele funciona?
