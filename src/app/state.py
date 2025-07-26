@@ -1,15 +1,44 @@
 import datetime
+import logging
 import os
 import pickle
 import time
-import logging
 from dataclasses import dataclass, field
+from pathlib import Path
+
 import pandas as pd
-from app.utils.sharepointHandler import SharepointHandler
 from pandas.io.excel import ExcelFile
 
+from app.utils.sharepointHandler import SharepointHandler
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+
+DIR_CACHE = Path(os.getenv("DIR_CACHE"))
+
+def load_app_state():
+    try:
+        # Load from cache disk
+        with open(DIR_CACHE / "state.pickle", "rb") as f:
+            app_state = pickle.load(f)
+
+            # For integration purposes
+            app_state.data.valid.to_pickle(
+                DIR_CACHE / "valid_data.pickle"
+            )
+    except FileNotFoundError:
+        # Create it
+        app_state = AppState()
+        app_state.get_dfs()
+        app_state.save_state()
+
+    # Check if mock
+    if str(os.getenv("MOCK_DATA")).lower() == "true":
+        from app.mocks.mock import mock_state
+
+        app_state = mock_state(app_state)
+        logger.warning("Mocked data!")
+
+    return app_state
 
 
 @dataclass
@@ -31,14 +60,14 @@ class AppState:
 
     def getSpHandlers(self) -> dict[str, ExcelFile]:
         """Get Sharepoint Handlers"""
-        log.info(f"Getting SharePoint IO Handlers...")
+        logger.info("Getting SharePoint IO Handlers...")
         # Load the io handlers for each Excel
         d = dict()
         for sigla in ("AF", "GK", "LP", "RZ"):
             d[sigla] = self.spHandler.get_excel_file(
                 f"{self.relUrl}{os.getenv(f'XLSX_{sigla}')}"
             )
-            log.info(f"Got io handler: {sigla}")
+            logger.info(f"Got io handler: {sigla}")
 
         return d
 
@@ -70,14 +99,10 @@ class AppState:
             for employee in employees
         ]
         self._filter_desired()
-    
-    def get_keys(self, io_handler: ExcelFile):
-        df = pd.read_excel(io_handler, "KEYS")
-        print("developing")
 
     def _get_df(self, excel_file: ExcelFile, employee: str) -> pd.DataFrame | None:
         # Log employee
-        log.info(f"Reading the table of '{employee}'")
+        logger.info(f"Reading the table of '{employee}'")
 
         # Read Excel sheetname of the specific employee
         first_columns = ["Data", "Projeto", "Produto", "Atividade"]
@@ -99,7 +124,7 @@ class AppState:
             self.employee_list.remove(employee)
             sigla = "antes_era_algo_outro"
             self.filename_employees[sigla].remove(employee)
-            log.info(
+            logger.info(
                 f" WARNING: '{employee}' has no data. Warning: REMOVED from data importer."
             )
             return None
@@ -217,8 +242,12 @@ class AppState:
         product_is_string = data["product"].apply(lambda x: isinstance(x, str))
         activity_not_empty = ~data["activity"].isna()
         activity_is_string = data["activity"].apply(lambda x: isinstance(x, str))
-        activity_not_codex = ~data["activity"].fillna("Loading...").str.contains("Codex")
-        activity_not_growth = ~data["activity"].fillna("Loading...").str.contains("Growth")
+        activity_not_codex = (
+            ~data["activity"].fillna("Loading...").str.contains("Codex")
+        )
+        activity_not_growth = (
+            ~data["activity"].fillna("Loading...").str.contains("Growth")
+        )
         hours_positive = data["hours"] > 0
         valid_project = (
             date_is_datetime_not_na
@@ -263,21 +292,19 @@ class AppState:
         return data, invalid
 
     def save_state(self):
-        cache_folder = "app/cache"
-
         # Create
-        os.makedirs(cache_folder, exist_ok=True)
+        DIR_CACHE.mkdir(parents=True, exist_ok=True)
 
         # Clean CTX from Office 365
         self.spHandler.client_context = None
         self.xlsx = None
 
         # Save as pickle
-        with open(f"{cache_folder}/state.pickle", "wb") as f:
+        with open(DIR_CACHE / "state.pickle", "wb") as f:
             pickle.dump(self, f)
 
             # For integration purposes
-            self.data.valid.to_pickle(f"{cache_folder}/valid_data.pickle")
+            self.data.valid.to_pickle(DIR_CACHE / "valid_data.pickle")
 
         # Save as .xlsx
         folder = "/mnt/c/SharedCache"
@@ -297,7 +324,7 @@ class AppState:
         # Get employees
         sigla__pdIoExcelHandlers = self.getSpHandlers()
 
-        self.get_keys(sigla__pdIoExcelHandlers["AF"])
+        df = pd.read_excel(sigla__pdIoExcelHandlers["AF"], "KEYS")
 
         # Filename
         filename_employees = {
@@ -322,6 +349,8 @@ class AppState:
         data = list()
         self.progress = 0
         for i, (filename, employee) in enumerate(filename_employees):
+            if "Planilha" in str(employee):
+                continue
             df = self._get_df(sigla__pdIoExcelHandlers[filename], str(employee))
             if isinstance(df, pd.DataFrame):
                 data.append(df.dropna(axis=1, how="all"))
@@ -345,7 +374,7 @@ class AppState:
         # Log elapsed time
         tf = time.time()
         eta = int(tf - ti)
-        log.info(f"Elapsed time: {eta} s")
+        logger.info(f"Elapsed time: {eta} s")
 
         # Save state
         self.save_state()

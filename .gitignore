@@ -18,3 +18,9 @@ company_excel_mock/*
 
 # Logs
 logs/
+
+# Ruff
+.ruff_cache/
+
+# Egg
+*.egg-info

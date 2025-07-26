@@ -1,6 +1,6 @@
 import io
-import os
 import logging
+import os
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -13,6 +13,7 @@ load_dotenv()
 
 log = logging.getLogger(__name__)
 
+
 class SharepointHandler:
     def __init__(self):
         self.url = os.getenv("SHAREPOINT_URL")
@@ -23,8 +24,12 @@ class SharepointHandler:
     def __auth__(self):
         try:
             client_context_auth = AuthenticationContext(self.url)
-            if not client_context_auth.acquire_token_for_user(self.username, self.password):
-                log.exception(f"Authentication failed: {client_context_auth.get_last_error()}")
+            if not client_context_auth.acquire_token_for_user(
+                self.username, self.password
+            ):
+                log.exception(
+                    f"Authentication failed: {client_context_auth.get_last_error()}"
+                )
 
             client_context = ClientContext(self.url, client_context_auth)
 
@@ -33,20 +38,25 @@ class SharepointHandler:
             client_context.load(current_user)
             client_context.execute_query()
 
-
             web = client_context.web
             user = client_context.web.current_user
 
-            client_context.load(web, ["Title"]) 
+            client_context.load(web, ["Title"])
             client_context.load(user)
             client_context.execute_query()
 
-            log.info(f"Accessed SharePoint site: '{web.properties['Title']}' at {self.url}")
-            log.info(f"Logged in as '{user.properties['Title']}' ({user.properties['LoginName']})")
+            log.info(
+                f"Accessed SharePoint site: '{web.properties['Title']}' at {self.url}"
+            )
+            log.info(
+                f"Logged in as '{user.properties['Title']}' ({user.properties['LoginName']})"
+            )
 
         except Exception as e:
             print(e)
-            log.exception(f"Authentication failed: {client_context_auth.get_last_error()}")
+            log.exception(
+                f"Authentication failed: {client_context_auth.get_last_error()}"
+            )
             raise RuntimeError("Auth error!")
 
         self.client_context = client_context

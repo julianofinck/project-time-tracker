@@ -13,25 +13,23 @@ Esse projeto gera gráficos analíticos dinâmicos para gestão corporativa, uti
 
 
 ## ⬇️ Como instalar
-Utilizando o [Poetry](https://python-poetry.org/docs/),
-```shell
-# Clone o repositório
+```bash
+# Caso não tenha, baixe uv (Linux)
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Entre no diretório raiz do projeto
-cd <project-dir>
+# Ative e sincronize o ambiente virtual
+uv venv
+uv sync
 
-# Instale as dependencias
-poetry install
+# Suba em produção
+./run_server_prd.sh
 
-# Ative o ambiente venv
-poetry shell
+# [DESENVOLVIMENTO]
+# Instale os pre-commit hooks
+uv run pre-commit install
 
-# [SUBIR A APLICAÇÃO]
-# Modo DEBUG
-python run_server_debug.py
+# Rode em modo debug o 'run_server_dev.py"
 
-# Modo PRODUÇÃO
-./run_server.sh
 ```
 
 ## 🛠️ Como ele funciona?
@@ -42,53 +40,3 @@ Desde 02/02/2025 a dependência com a sincronização do OneDrive foi resolvida,
 </div>
 
 ## 🌳 Estrutura do Projeto 🧬
-<pre>.
-├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/README.md">📄 README.md</a>
-├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app">📁 app</a>
-│   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/__init__.py">📄 __init__.py</a>
-│   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/alternative_to_onedrive.py">📄 alternative_to_onedrive.py</a>
-│   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/app_state.py">📄 app_state.py</a>
-│   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/assets">📁 assets</a>
-│   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/assets/css">📁 css</a>
-│   │   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/assets/css/card.css">📄 card.css</a>
-│   │   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/assets/css/header-selectors.css">📄 header-selectors.css</a>
-│   │   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/assets/css/main.css">📄 main.css</a>
-│   │   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/assets/css/root.css">📄 root.css</a>
-│   │   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/assets/css/tab.css">📄 tab.css</a>
-│   │   │   └── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/assets/css/table.css">📄 table.css</a>
-│   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/assets/favicon.ico">📄 favicon.ico</a>
-│   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/assets/favicon_mock.ico">📄 favicon_mock.ico</a>
-│   │   └── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/assets/script.js">📄 script.js</a>
-│   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/cache">📁 cache</a>
-│   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/cache/state.pickle">📄 state.pickle</a>
-│   │   └── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/cache/valid_data.pickle">📄 valid_data.pickle</a>
-│   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/callbacks">📁 callbacks</a>
-│   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/callbacks/__init__.py">📄 __init__.py</a>
-│   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/callbacks/cards">📁 cards</a>
-│   │   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/callbacks/cards/__init__.py">📄 __init__.py</a>
-│   │   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/callbacks/cards/invalid_registers.py">📄 invalid_registers.py</a>
-│   │   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/callbacks/cards/team_commitment.py">📄 team_commitment.py</a>
-│   │   │   └── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/callbacks/cards/valid_registers.py">📄 valid_registers.py</a>
-│   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/callbacks/headers.py">📄 headers.py</a>
-│   │   └── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/callbacks/read_excels_bar.py">📄 read_excels_bar.py</a>
-│   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/commitment_card_processor.py">📄 commitment_card_processor.py</a>
-│   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/languages">📁 languages</a>
-│   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/languages/__init__.py">📄 __init__.py</a>
-│   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/languages/translations.csv">📄 translations.csv</a>
-│   │   └── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/languages/translator.py">📄 translator.py</a>
-│   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/layout">📁 layout</a>
-│   │   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/layout/__init__.py">📄 __init__.py</a>
-│   │   └── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/layout/layout.py">📄 layout.py</a>
-│   ├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/mocks">📁 mocks</a>
-│   │   └── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/mocks/mock.py">📄 mock.py</a>
-│   └── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/utils">📁 utils</a>
-│       └── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/app/utils/logger.py">📄 logger.py</a>
-├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/img">📁 img</a>
-│   └── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/img/flowchart.svg">📄 flowchart.svg</a>
-├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/logs">📁 logs</a>
-│   └── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/logs/main.log">📄 main.log</a>
-├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/poetry.lock">📄 poetry.lock</a>
-├── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/pyproject.toml">📄 pyproject.toml</a>
-└── <a href="/home/julianofinck/codex/tabela-apontamentos/project-time-tracker/run.py">📄 run.py</a>
-
-</pre>
