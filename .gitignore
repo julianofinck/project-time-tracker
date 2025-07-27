@@ -1,16 +1,21 @@
-.vscode/
-.venv/
-scripts/import.py
+# IDE settings
+.vscode
+.idea
 
-app/cache/*
+# Python compile
+__pycache__/
+*.pyc
 
-**/__pycache__/*
-"*.pyc
+# Egg
+*.egg-info
 
 # Company excel mock
 company_excel_mock/*
 
-# Env vars
+# Virtual environment
+.venv/
+
+# Environment variables
 .env
 
 # Ignore mocks
@@ -22,5 +27,6 @@ logs/
 # Ruff
 .ruff_cache/
 
-# Egg
-*.egg-info
+# Project-specifics
+scripts/import.py
+app/cache/*
