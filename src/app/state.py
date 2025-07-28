@@ -307,7 +307,7 @@ class AppState:
             self.data.valid.to_pickle(DIR_CACHE / "valid_data.pickle")
 
         # Save as .xlsx
-        folder = "/mnt/c/SharedCache"
+        folder = os.getenv("DIR_CACHE")
         if os.path.exists(folder):
             # Remove xlsx
             for file in os.listdir(folder):

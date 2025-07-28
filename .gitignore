@@ -28,5 +28,4 @@ logs/
 .ruff_cache/
 
 # Project-specifics
-scripts/import.py
-app/cache/*
+**/cache/*
