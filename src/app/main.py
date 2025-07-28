@@ -2,6 +2,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# These 'noqa' must be kept so that ruff does not complaing about it.
+# Env vars must be loaded before anything else
 from dash import ClientsideFunction, Dash, Input, Output  # noqa
 
 from app.callbacks import register_callbacks  # noqa
