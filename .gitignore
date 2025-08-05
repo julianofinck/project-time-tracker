@@ -29,3 +29,5 @@ logs/
 
 # Project-specifics
 **/cache/*
+
+gunicorn.pid

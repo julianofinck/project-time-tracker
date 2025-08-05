@@ -2,13 +2,30 @@
 
 # Rotina para script de produção - Execução com gunicorn
 #   Não esqueça de habilitar a execução do script:
-#       chmod +x run_server.sh
+#       chmod +x run_server_prd.sh
 
-# Kill any existing gunicorn processes
-pkill -f gunicorn
+# Stop previous instance (safer)
+if [ -f gunicorn.pid ]; then
+    PID=$(cat gunicorn.pid)
+    if ps -p $PID > /dev/null; then
+        kill $PID
+        echo "Killed gunicorn process $PID"
+    else
+        echo "No process found with PID $PID"
+    fi
+    rm gunicorn.pid
+fi
 
-# Activate the virtual environment
+# Activate venv
 source .venv/bin/activate
 
-# Run with correct PYTHONPATH so it finds src/app
-PYTHONPATH=src gunicorn app.main:server --bind 0.0.0.0:8050
+# Create logs folder if not exists
+mkdir -p logs
+
+# Run gunicorn
+PYTHONPATH=src gunicorn app.main:server \
+  --bind 0.0.0.0:8050 \
+  --workers 3 \
+  --pid gunicorn.pid \
+  --access-logfile logs/access.log \
+  --error-logfile logs/error.log
