@@ -60,7 +60,7 @@ class AppState:
 
     def getSpHandlers(self) -> dict[str, ExcelFile]:
         """Get Sharepoint Handlers"""
-        logger.info("Getting SharePoint IO Handlers...")
+        logger.info(f"Getting SharePoint IO Handlers... (PID: {os.getpid()})")
         # Load the io handlers for each Excel
         d = dict()
         for sigla in ("AF", "GK", "LP", "RZ"):
@@ -349,7 +349,7 @@ class AppState:
         data = list()
         self.progress = 0
         for i, (filename, employee) in enumerate(filename_employees):
-            if "Planilha" in str(employee):
+            if "Planilha" in str(employee) or "Proj_Prod" in str(employee):
                 continue
             df = self._get_df(sigla__pdIoExcelHandlers[filename], str(employee))
             if isinstance(df, pd.DataFrame):
