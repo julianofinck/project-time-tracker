@@ -23,9 +23,10 @@ source .venv/bin/activate
 mkdir -p logs
 
 # Run gunicorn
+# Change number of workers to 1 (having more than one clashes with download logic, there must be a better way to fix it...)
 PYTHONPATH=src gunicorn app.main:server \
   --bind 0.0.0.0:8050 \
-  --workers 3 \
+  --workers 1 \
   --pid gunicorn.pid \
   --access-logfile logs/access.log \
   --error-logfile logs/error.log
