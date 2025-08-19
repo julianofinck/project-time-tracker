@@ -322,6 +322,75 @@ class AppState:
         Get employee list and set the state
         """
         # Get employees
+        onedrive = os.getenv("COMPANY_WORKHOURS_EXCELS_DIR")
+        sigla__pdIoExcelHandlers = {
+            "AF": f"{onedrive}/A_ao_F_APONTAMENTOS_OPE_2023.xlsx",
+            "GK": f"{onedrive}/G_ao_K_APONTAMENTOS_OPE_2023.xlsx",
+            "LP": f"{onedrive}/L_ao_P_APONTAMENTOS_OPE_2023.xlsx",
+            "RZ": f"{onedrive}/R_ao_Z_APONTAMENTOS_OPE_2023.xlsx",
+        }
+        
+
+        df = pd.read_excel(sigla__pdIoExcelHandlers["AF"], "KEYS")
+
+        # Filename
+        filename_employees = {
+            sigla: [
+                sheet_name
+                for sheet_name in pd.ExcelFile(workbook).sheet_names
+                if sheet_name not in ["KEYS", "INÍCIO", "PowerQuery"]
+            ]
+            for sigla, workbook in sigla__pdIoExcelHandlers.items()
+        }
+
+        # Get [(sigla, name), ...]
+        filename_employees = [
+            (filename, employee)
+            for filename, employees in filename_employees.items()
+            for employee in employees
+        ]
+        total_iterations = len(filename_employees)
+
+        # Get DataFrames
+        ti = time.time()
+        data = list()
+        self.progress = 0
+        for i, (filename, employee) in enumerate(filename_employees):
+            if "Planilha" in str(employee) or "Proj_Prod" in str(employee):
+                continue
+            df = self._get_df(sigla__pdIoExcelHandlers[filename], str(employee))
+            if isinstance(df, pd.DataFrame):
+                data.append(df.dropna(axis=1, how="all"))
+            self.progress = int((i + 1) / total_iterations * 100)
+
+        # Concatenate to single DataFrame
+        data = pd.concat(data)
+
+        # Validate and clean
+        valid, invalid = self._clean(data)
+
+        # Store in class
+        self.data.valid = valid
+        self.data.invalid = invalid
+
+        self.employee_list = list(valid.employee.unique()) + list(
+            invalid.employee.unique()
+        )
+        self.employee_list.sort()
+
+        # Log elapsed time
+        tf = time.time()
+        eta = int(tf - ti)
+        logger.info(f"Elapsed time: {eta} s")
+
+        # Save state
+        self.save_state()
+
+    def get_dfs_office365(self) -> None:
+        """
+        Get employee list and set the state
+        """
+        # Get employees
         sigla__pdIoExcelHandlers = self.getSpHandlers()
 
         df = pd.read_excel(sigla__pdIoExcelHandlers["AF"], "KEYS")

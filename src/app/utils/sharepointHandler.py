@@ -5,8 +5,11 @@ import os
 import pandas as pd
 from dotenv import load_dotenv
 from office365.runtime.auth.authentication_context import AuthenticationContext
+from office365.runtime.auth.user_credential import UserCredential
 from office365.sharepoint.client_context import ClientContext
 from office365.sharepoint.files.file import File
+
+# Azure Device Code Credentials
 
 load_dotenv()
 
@@ -19,31 +22,51 @@ class SharepointHandler:
         self.url = os.getenv("SHAREPOINT_URL")
         self.username = os.getenv("SHAREPOINT_USER")
         self.password = os.getenv("SHAREPOINT_PASSWORD")
+        self.client_id = os.getenv("SHAREPOINT_CLIENT_ID")
+        self.client_secret = os.getenv("SHAREPOINT_CLIENT_SECRET")
         self.client_context = None
 
     def __auth__(self):
         try:
-            client_context_auth = AuthenticationContext(self.url)
-            if not client_context_auth.acquire_token_for_user(
-                self.username, self.password
-            ):
-                log.exception(
-                    f"Authentication failed: {client_context_auth.get_last_error()}"
-                )
+            # Metodo antigo
+            metodo = "user_credential"
 
-            client_context = ClientContext(self.url, client_context_auth)
+            if metodo == "antigo":
+                client_context_auth = AuthenticationContext(self.url)
+                if not client_context_auth.acquire_token_for_user(
+                    self.username, self.password
+                ):
+                    log.exception(
+                        f"Authentication failed: {client_context_auth.get_last_error()}"
+                    )
+
+                ctx = ClientContext(self.url, client_context_auth)
+
+            elif metodo == "user_credential":
+                ctx = ClientContext(self.url).with_credentials(UserCredential(self.username, self.password))
+                with open("aqui.xlsx", "wb") as f:
+                    file = ctx.web.get_file_by_server_relative_url("/sites/Codex-Operao/general/A_ao_F_APONTAMENTOS_OPE_2023.xlsx")
+                    file.download(f).execute_query()
+
+                web = ctx.web.get().execute_query()
+                print(web.url)
+
+            elif metodo == "azure_ad":
+                ctx = ClientContext(self.url).with_client_credentials(self.client_id, self.client_secret)
+                web = ctx.web.get().execute_query()
+                print(web.url)
 
             # Get the current user
-            current_user = client_context.web.current_user
-            client_context.load(current_user)
-            client_context.execute_query()
+            current_user = ctx.web.current_user
+            ctx.load(current_user)
+            ctx.execute_query()
 
-            web = client_context.web
-            user = client_context.web.current_user
+            web = ctx.web
+            user = ctx.web.current_user
 
-            client_context.load(web, ["Title"])
-            client_context.load(user)
-            client_context.execute_query()
+            ctx.load(web, ["Title"])
+            ctx.load(user)
+            ctx.execute_query()
 
             log.info(
                 f"Accessed SharePoint site: '{web.properties['Title']}' at {self.url}"
@@ -52,14 +75,11 @@ class SharepointHandler:
                 f"Logged in as '{user.properties['Title']}' ({user.properties['LoginName']})"
             )
 
-        except Exception as e:
-            print(e)
-            log.exception(
-                f"Authentication failed: {client_context_auth.get_last_error()}"
-            )
+        except Exception:
+            log.exception("Authentication failed")
             raise RuntimeError("Auth error!")
 
-        self.client_context = client_context
+        self.client_context = ctx
 
     def get_excel_file(self, relative_url):
         # Get context if it does not exist
